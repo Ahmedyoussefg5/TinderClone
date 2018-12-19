@@ -10,10 +10,15 @@ import UIKit
 
 class CardView: UIView {
   
+  // MARK: - Views
+  
   let backgroundImageView: UIImageView = {
     let imageView = UIImageView(image: #imageLiteral(resourceName: "lady5c").withRenderingMode(.alwaysOriginal))
     return imageView
   }()
+  
+  // MARK: - Configuration Constants
+  fileprivate let panGestureThreshold: CGFloat = 80
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -35,23 +40,42 @@ class CardView: UIView {
   @objc fileprivate func handlePanGesture(gesture: UIPanGestureRecognizer) {
     switch gesture.state {
     case .changed:
-      handleChangedPanGesture(gesture: gesture)
+      handleChangedPanGesture(gesture)
     case .ended:
-      handleEndedPanGesture()
+      handleEndedPanGesture(gesture)
     default:
       ()
     }
   }
   
-  fileprivate func handleChangedPanGesture(gesture: UIPanGestureRecognizer) {
+  fileprivate func handleChangedPanGesture(_ gesture: UIPanGestureRecognizer) {
     let translation = gesture.translation(in: nil)
-    transform = CGAffineTransform(translationX: translation.x, y: translation.y)
+    let degree = translation.x / 20
+    let rotationAngle = degree * .pi / 180
+    let rotationalTransformation = CGAffineTransform(rotationAngle: rotationAngle)
+    let rotateAndTranslateTransformation = rotationalTransformation.translatedBy(x: translation.x, y: translation.y)
+    transform = rotateAndTranslateTransformation
   }
   
-  fileprivate func handleEndedPanGesture() {
+  fileprivate func handleEndedPanGesture(_ gesture: UIPanGestureRecognizer) {
+    let translation = gesture.translation(in: nil)
+    let shouldDismissCard = translation.x > panGestureThreshold ||
+                            translation.x < -panGestureThreshold
+    
     UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .curveEaseOut, animations: {
+      if shouldDismissCard {
+        if translation.x > 0 {
+          self.frame = CGRect(x: 1000, y: 0, width: self.frame.width, height: self.frame.height)
+        } else {
+          self.frame = CGRect(x: -1000, y: 0, width: self.frame.width, height: self.frame.height)
+        }
+      } else {
+        self.transform = .identity
+      }
+    }) { (_) in
       self.transform = .identity
-    })
+      self.frame = CGRect(x: 0, y: 0, width: self.superview!.frame.width, height: self.superview!.frame.height)
+    }
   }
   
 }

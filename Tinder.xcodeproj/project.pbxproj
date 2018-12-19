@@ -81,7 +81,7 @@
 		7DBF4B6621CAD48200648190 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				7DBF4B5321CACB6D00648190 /* HomeViewController.swift */,
+				7DBF4B7021CAF3CB00648190 /* Controllers */,
 				7DBF4B6721CAD49800648190 /* Views */,
 			);
 			path = Home;
@@ -95,6 +95,14 @@
 				7DBF4B6A21CAD98500648190 /* BottomNavigationStackView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		7DBF4B7021CAF3CB00648190 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				7DBF4B5321CACB6D00648190 /* HomeViewController.swift */,
+			);
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
