@@ -36,11 +36,7 @@ class TopNavigationStackView: UIStackView {
     heightAnchor.constraint(equalToConstant: 80).isActive = true
     
     let arrangedSubviews = [
-      profileButton,
-      UIView(),
-      logoImageView,
-      UIView(),
-      messagesButton
+      profileButton, UIView(), logoImageView, UIView(), messagesButton
     ]
     
     arrangedSubviews.forEach { addArrangedSubview($0) }

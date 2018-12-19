@@ -10,22 +10,33 @@ import UIKit
 
 class HomeViewController: UIViewController {
   
+  // MARK: - Views
+  
   let topNavigationStackView = TopNavigationStackView()
-  let middleView = UIView()
+  let cardDeckView = UIView()
   let bottomNavigationStackView = BottomNavigationStackView()
 
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
-    middleView.backgroundColor = .blue
     layoutSubviews()
   }
   
   // MARK: - Helper
   
   fileprivate func layoutSubviews() {
-    let stackView = UIStackView(arrangedSubviews: [topNavigationStackView, middleView, bottomNavigationStackView])
+    let dummyCard = CardView()
+    cardDeckView.addSubview(dummyCard)
+    dummyCard.fillSuperview()
+    
+    let stackView = UIStackView(arrangedSubviews: [
+      topNavigationStackView, cardDeckView, bottomNavigationStackView
+    ])
     stackView.axis = .vertical
+    stackView.isLayoutMarginsRelativeArrangement = true
+    stackView.layoutMargins = .init(top: 0, left: 8, bottom: 0, right: 8)
+    stackView.bringSubviewToFront(cardDeckView)
+    
     view.addSubview(stackView)
     stackView.anchor(
       top: view.safeAreaLayoutGuide.topAnchor,
@@ -34,7 +45,6 @@ class HomeViewController: UIViewController {
       trailing: view.trailingAnchor
     )
   }
-
 
 }
 
