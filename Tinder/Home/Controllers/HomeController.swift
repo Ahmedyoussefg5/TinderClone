@@ -40,7 +40,7 @@ class HomeController: UIViewController {
     }
   }
   
-  // MARK: - Helper
+  // MARK: - Setup
   
   fileprivate func setupLayout() {
     view.backgroundColor = .white

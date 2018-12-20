@@ -85,7 +85,7 @@ class CardView: UIView {
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    setupView()
+    setupSubviews()
     setupGestures()
   }
   
@@ -95,7 +95,7 @@ class CardView: UIView {
   
   // MARK: - Setup 
   
-  fileprivate func setupView() {
+  fileprivate func setupSubviews() {
     layer.cornerRadius = 10
     clipsToBounds = true
     
@@ -142,7 +142,6 @@ extension CardView {
   @objc fileprivate func handleTapGesture(_ gesture: UITapGestureRecognizer) {
     let tapLocation = gesture.location(in: nil)
     let shouldAdvanceToNextPhoto = tapLocation.x > (frame.width / 2) ? true : false
-    
     if shouldAdvanceToNextPhoto {
       cardViewModel.goToNextPhoto()
     } else {
@@ -155,15 +154,15 @@ extension CardView {
     case .began:
       superview?.subviews.forEach { $0.layer.removeAllAnimations() }
     case .changed:
-      handleChangedPanGesture(gesture)
+      handlePanGestureChanged(gesture)
     case .ended:
-      handleEndedPanGesture(gesture)
+      handlePanGestureEnded(gesture)
     default:
       ()
     }
   }
   
-  fileprivate func handleChangedPanGesture(_ gesture: UIPanGestureRecognizer) {
+  fileprivate func handlePanGestureChanged(_ gesture: UIPanGestureRecognizer) {
     let translation = gesture.translation(in: nil)
     let degree = translation.x / 20
     let rotationAngle = degree * .pi / 180
@@ -172,10 +171,9 @@ extension CardView {
     transform = rotateAndTranslateTransformation
   }
   
-  fileprivate func handleEndedPanGesture(_ gesture: UIPanGestureRecognizer) {
+  fileprivate func handlePanGestureEnded(_ gesture: UIPanGestureRecognizer) {
     let translation = gesture.translation(in: nil)
-    let shouldDismissCard = translation.x > panGestureThreshold ||
-      translation.x < -panGestureThreshold
+    let shouldDismissCard = translation.x > panGestureThreshold || translation.x < -panGestureThreshold
     
     UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .curveEaseOut, animations: {
       if shouldDismissCard {

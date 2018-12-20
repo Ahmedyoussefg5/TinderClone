@@ -13,6 +13,7 @@ protocol CardViewModelProducer {
 }
 
 class CardViewModel {
+  
   let imageNames: [String]
   let attributedText: NSAttributedString
   let textAlignment: NSTextAlignment
