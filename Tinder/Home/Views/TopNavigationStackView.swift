@@ -10,6 +10,8 @@ import UIKit
 
 class TopNavigationStackView: UIStackView {
   
+  // MARK: - Subviews
+  
   let profileButton: UIButton = {
     let button = UIButton(type: .system)
     button.setImage(#imageLiteral(resourceName: "top_left_profile").withRenderingMode(.alwaysOriginal), for: .normal)
@@ -27,6 +29,8 @@ class TopNavigationStackView: UIStackView {
     button.setImage(#imageLiteral(resourceName: "top_right_messages").withRenderingMode(.alwaysOriginal), for: .normal)
     return button
   }()
+  
+  // MARK: - Initializers
   
   override init(frame: CGRect) {
     super.init(frame: frame)

@@ -10,6 +10,8 @@ import UIKit
 
 class BottomNavigationStackView: UIStackView {
   
+  // MARK: - Views
+  
   let refreshButton: UIButton = {
     let button = UIButton(type: .system)
     button.setImage(#imageLiteral(resourceName: "refresh_circle").withRenderingMode(.alwaysOriginal), for: .normal)
@@ -40,17 +42,15 @@ class BottomNavigationStackView: UIStackView {
     return button
   }()
   
+  // MARK: - Initializers
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
     distribution = .fillEqually
     heightAnchor.constraint(equalToConstant: 120).isActive = true
     
     let arrangedSubviews = [
-      refreshButton,
-      dismissButton,
-      superLikeButton,
-      likeButton,
-      boostButton
+      refreshButton, dismissButton, superLikeButton, likeButton, boostButton
     ]
     
     arrangedSubviews.forEach { addArrangedSubview($0) }
