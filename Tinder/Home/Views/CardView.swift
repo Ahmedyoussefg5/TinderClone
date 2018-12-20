@@ -13,10 +13,25 @@ class CardView: UIView {
   // MARK: - Views
   
   private let backgroundImageView: UIImageView = {
-    let imageView = UIImageView(image: #imageLiteral(resourceName: "lady5c").withRenderingMode(.alwaysOriginal))
+    let imageView = UIImageView()
     imageView.contentMode = .scaleAspectFill
     imageView.clipsToBounds = true
     return imageView
+  }()
+  
+  private let gradientLayer: CAGradientLayer = {
+    let gradientLayer = CAGradientLayer()
+    gradientLayer.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
+    gradientLayer.locations = [0.5, 1.1]
+    return gradientLayer
+  }()
+  
+  private let imageSelectionStackView: UIStackView = {
+    let stackView = UIStackView()
+    stackView.axis = .horizontal
+    stackView.spacing = 8
+    stackView.distribution = .fillEqually
+    return stackView
   }()
   
   private let informationLabel: UILabel = {
@@ -26,30 +41,51 @@ class CardView: UIView {
     return label
   }()
   
+  // MARK: - Configuration Constants
+  
+  fileprivate let panGestureThreshold: CGFloat = 80
+  fileprivate let unselectedImageColor = UIColor(white: 0, alpha: 0.1)
+  
   // MARK: - View Model
   
   var cardViewModel: CardViewModel! {
     didSet {
       informationLabel.attributedText = cardViewModel.attributedText
       informationLabel.textAlignment = cardViewModel.textAlignment
-      guard let image = UIImage(named: cardViewModel.imageName) else { return }
-      backgroundImageView.image = image
+
+      (0..<cardViewModel.imageNames.count).forEach { (_) in
+        let view = UIView()
+        view.backgroundColor = unselectedImageColor
+        imageSelectionStackView.addArrangedSubview(view)
+      }
+      
+      // setup observer
+      cardViewModel.selectedImageObserver = { [weak self] (index, image) in
+        guard let self = self else { return }
+        guard let image = image else { return }
+        
+        self.backgroundImageView.image = image
+        self.imageSelectionStackView.arrangedSubviews.forEach { $0.backgroundColor = self.unselectedImageColor }
+        self.imageSelectionStackView.arrangedSubviews[index].backgroundColor = .white
+      }
+      
+      guard let firstImage = UIImage(named: cardViewModel.imageNames.first ?? "") else { return }
+      backgroundImageView.image = firstImage
+      imageSelectionStackView.arrangedSubviews.first?.backgroundColor = .white
     }
   }
   
-  // MARK: - Configuration Constants
+  // MARK: - Overrides
   
-  fileprivate let panGestureThreshold: CGFloat = 80
+  override func layoutSubviews() {
+    gradientLayer.frame = self.frame
+  }
   
   // MARK: - Initializers
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    
-    layer.cornerRadius = 10
-    clipsToBounds = true
-    
-    setupSubviews()
+    setupView()
     setupGestures()
   }
   
@@ -59,9 +95,16 @@ class CardView: UIView {
   
   // MARK: - Setup 
   
-  fileprivate func setupSubviews() {
+  fileprivate func setupView() {
+    layer.cornerRadius = 10
+    clipsToBounds = true
+    
     addSubview(backgroundImageView)
     backgroundImageView.fillSuperview()
+    
+    setupImageSelectionStackView()
+    
+    layer.addSublayer(gradientLayer)
     
     addSubview(informationLabel)
     informationLabel.anchor(
@@ -73,9 +116,22 @@ class CardView: UIView {
     )
   }
   
+  fileprivate func setupImageSelectionStackView() {
+    addSubview(imageSelectionStackView)
+    imageSelectionStackView.anchor(
+      top: topAnchor,
+      leading: leadingAnchor,
+      bottom: nil,
+      trailing: trailingAnchor,
+      padding: .init(top: 8, left: 8, bottom: 0, right: 8),
+      size: .init(width: 0, height: 4)
+    )
+  }
+  
   fileprivate func setupGestures() {
     let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
-    addGestureRecognizer(panGesture)
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+    [panGesture, tapGesture].forEach { addGestureRecognizer($0) }
   }
   
 }
@@ -83,8 +139,21 @@ class CardView: UIView {
 // MARK: - Gestures
 extension CardView {
   
-  @objc fileprivate func handlePanGesture(gesture: UIPanGestureRecognizer) {
+  @objc fileprivate func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+    let tapLocation = gesture.location(in: nil)
+    let shouldAdvanceToNextPhoto = tapLocation.x > (frame.width / 2) ? true : false
+    
+    if shouldAdvanceToNextPhoto {
+      cardViewModel.goToNextPhoto()
+    } else {
+      cardViewModel.goToPreviousPhoto()
+    }
+  }
+  
+  @objc fileprivate func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
     switch gesture.state {
+    case .began:
+      superview?.subviews.forEach { $0.layer.removeAllAnimations() }
     case .changed:
       handleChangedPanGesture(gesture)
     case .ended:
@@ -127,3 +196,4 @@ extension CardView {
   }
   
 }
+

@@ -34,6 +34,14 @@ class TopNavigationStackView: UIStackView {
   
   override init(frame: CGRect) {
     super.init(frame: frame)
+    setupStackViewLayout()
+  }
+  
+  required init(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  fileprivate func setupStackViewLayout() {
     distribution = .equalCentering
     isLayoutMarginsRelativeArrangement = true
     layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
@@ -44,10 +52,6 @@ class TopNavigationStackView: UIStackView {
     ]
     
     arrangedSubviews.forEach { addArrangedSubview($0) }
-  }
-  
-  required init(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
   }
   
 }

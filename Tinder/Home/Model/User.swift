@@ -12,7 +12,7 @@ struct User {
   let name: String
   let age: Int
   let profession: String
-  let imageName: String
+  let imageNames: [String]
 }
 
 extension User: CardViewModelProducer {
@@ -27,7 +27,7 @@ extension User: CardViewModelProducer {
     let professionAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .medium)]
     attributedText.append(NSAttributedString(string: "\n\(profession)", attributes: professionAttributes))
     
-    return CardViewModel(imageName: imageName, attributedText: attributedText, textAlignment: .left)
+    return CardViewModel(imageNames: imageNames, attributedText: attributedText, textAlignment: .left)
   }
   
 }

@@ -46,6 +46,14 @@ class BottomNavigationStackView: UIStackView {
   
   override init(frame: CGRect) {
     super.init(frame: frame)
+    setupStackViewLayout()
+  }
+  
+  required init(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  fileprivate func setupStackViewLayout() {
     distribution = .fillEqually
     heightAnchor.constraint(equalToConstant: 120).isActive = true
     
@@ -56,8 +64,5 @@ class BottomNavigationStackView: UIStackView {
     arrangedSubviews.forEach { addArrangedSubview($0) }
   }
   
-  required init(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-  
 }
+

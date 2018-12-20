@@ -19,15 +19,17 @@ class HomeController: UIViewController {
   // MARK: Model
   
   var producers = [
-    User(name: "Kelly", age: 23, profession: "Teacher", imageName: "lady5c"),
-    User(name: "Jane", age: 18, profession: "DJ", imageName: "lady4c"),
+    User(name: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
+    User(name: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
+    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster"),
+    User(name: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
+    User(name: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
     Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster")
   ] as [CardViewModelProducer]
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .white
-    layoutSubviews()
+    setupLayout()
     
     let cardViewModels = producers.reversed().map { $0.toCardViewModel() }
     cardViewModels.forEach {
@@ -40,7 +42,9 @@ class HomeController: UIViewController {
   
   // MARK: - Helper
   
-  fileprivate func layoutSubviews() {
+  fileprivate func setupLayout() {
+    view.backgroundColor = .white
+    
     let stackView = UIStackView(arrangedSubviews: [
       topNavigationStackView, cardDeckView, bottomNavigationStackView
     ])
