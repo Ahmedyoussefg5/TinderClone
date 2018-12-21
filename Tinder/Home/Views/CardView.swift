@@ -59,14 +59,20 @@ class CardView: UIView {
         imageSelectionStackView.addArrangedSubview(view)
       }
       
-      // setup observer
-      cardViewModel.selectedImageObserver = { [weak self] (index, image) in
+      cardViewModel.bindableSelectedImageIndex.bind { [weak self] (index) in
         guard let self = self else { return }
-        guard let image = image else { return }
-        
-        self.backgroundImageView.image = image
+        guard let index = index else { return }
+        let imageName = self.cardViewModel.imageNames[index]
+        let image = UIImage(named: imageName)
+        self.cardViewModel.bindableSelectedImage.value = image
         self.imageSelectionStackView.arrangedSubviews.forEach { $0.backgroundColor = self.unselectedImageColor }
         self.imageSelectionStackView.arrangedSubviews[index].backgroundColor = .white
+      }
+      
+      cardViewModel.bindableSelectedImage.bind { [weak self] (image) in
+        guard let self = self else { return }
+        guard let image = image else { return }
+        self.backgroundImageView.image = image
       }
       
       guard let firstImage = UIImage(named: cardViewModel.imageNames.first ?? "") else { return }

@@ -23,10 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     db.settings = settings
     
     let registrationController = RegistrationController()
-    let _ = HomeController()
+    let homeController = HomeController()
     
     window = UIWindow()
-    window?.rootViewController = registrationController
+    window?.rootViewController = homeController
     window?.makeKeyAndVisible()
     
     return true
