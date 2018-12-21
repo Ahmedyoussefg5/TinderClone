@@ -11,16 +11,18 @@ import UIKit
 class RegistrationTextField: UITextField {
   
   let padding: CGFloat
+  let height: CGFloat
   
-  init(padding: CGFloat) {
+  init(padding: CGFloat, height: CGFloat) {
     self.padding = padding
+    self.height = height
     super.init(frame: .zero)
     backgroundColor = .white
-    layer.cornerRadius = 25
+    layer.cornerRadius = height / 2
   }
   
   override var intrinsicContentSize: CGSize {
-    return .init(width: 0, height: 50)
+    return .init(width: 0, height: height)
   }
   
   override func textRect(forBounds bounds: CGRect) -> CGRect {

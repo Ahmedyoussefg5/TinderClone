@@ -12,6 +12,7 @@
 		7D3FECDC21CC273600996F97 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3FECDB21CC273600996F97 /* RegistrationView.swift */; };
 		7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3FECE021CC31C400996F97 /* RegistrationViewModel.swift */; };
 		7D3FECE321CC46D200996F97 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */; };
+		7D6FA10321CC76F900C3C2D2 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10221CC76F900C3C2D2 /* Bindable.swift */; };
 		7DBF4B5221CACB6D00648190 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBF4B5121CACB6D00648190 /* AppDelegate.swift */; };
 		7DBF4B5421CACB6D00648190 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBF4B5321CACB6D00648190 /* HomeController.swift */; };
 		7DBF4B5921CACB6E00648190 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DBF4B5821CACB6E00648190 /* Assets.xcassets */; };
@@ -33,6 +34,7 @@
 		7D3FECDB21CC273600996F97 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 		7D3FECE021CC31C400996F97 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		7D6FA10221CC76F900C3C2D2 /* Bindable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bindable.swift; sourceTree = "<group>"; };
 		7DBF4B4E21CACB6D00648190 /* Tinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DBF4B5121CACB6D00648190 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7DBF4B5321CACB6D00648190 /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				7DBF4B6321CAD37800648190 /* Extensions+UIView.swift */,
+				7D6FA10221CC76F900C3C2D2 /* Bindable.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 				7DBF4B5221CACB6D00648190 /* AppDelegate.swift in Sources */,
 				7DBF4B6921CAD4B600648190 /* TopNavigationStackView.swift in Sources */,
 				7DDC53FA21CB2A0D0061FD94 /* CardViewModel.swift in Sources */,
+				7D6FA10321CC76F900C3C2D2 /* Bindable.swift in Sources */,
 				7DBF4B6D21CAE2EE00648190 /* CardView.swift in Sources */,
 				7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */,
 				7DBF4B6421CAD37800648190 /* Extensions+UIView.swift in Sources */,

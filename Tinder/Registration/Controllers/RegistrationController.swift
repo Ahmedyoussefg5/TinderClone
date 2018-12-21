@@ -7,24 +7,30 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class RegistrationController: UIViewController {
     
   fileprivate let registrationView = RegistrationView()
+  fileprivate let imagePickerController = UIImagePickerController()
+  fileprivate let registrationHUD = JGProgressHUD(style: .dark)
+  
   fileprivate let registrationViewModel = RegistrationViewModel()
   
   // MARK: - Overrides
   
-  override func loadView() {
-    view = registrationView
-  }
-  
   override func viewDidLoad() {
     super.viewDidLoad()
+    setupLayout()
     setupObservers()
     setupGestures()
-    setupTextFieldTargets()
-    setupIsFormValidObserver()
+    setupSubviewTargets()
+    setupRegistrationViewModelObservers()
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(true)
+    setupObservers()
   }
   
   override func viewWillDisappear(_ animated: Bool) {
@@ -33,6 +39,11 @@ class RegistrationController: UIViewController {
   }
   
   // MARK: - Setup
+  
+  fileprivate func setupLayout() {
+    view.addSubview(registrationView)
+    registrationView.fillSuperview()
+  }
   
   fileprivate func setupObservers() {
     NotificationCenter.default.addObserver(
@@ -54,14 +65,18 @@ class RegistrationController: UIViewController {
     view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
   }
   
-  fileprivate func setupTextFieldTargets() {
+  fileprivate func setupSubviewTargets() {
     let fields = [registrationView.fullNameTextfield, registrationView.emailTextfield, registrationView.passwordTextfield]
     fields.forEach { $0.addTarget(self, action: #selector(handleTextChange), for: .editingChanged) }
+    registrationView.selectPhotoButton.addTarget(self, action: #selector(handleSelectPhotoTapped), for: .touchUpInside)
+    registrationView.registerButton.addTarget(self, action: #selector(handleRegisterTapped), for: .touchUpInside)
   }
   
-  fileprivate func setupIsFormValidObserver() {
-    registrationViewModel.isFormValidObserver = { [weak self] (isFormValid) in
+  fileprivate func setupRegistrationViewModelObservers() {
+    registrationViewModel.bindableIsFormValid.bind { [weak self] (isFormValid) in
       guard let self = self else { return }
+      guard let isFormValid = isFormValid else { return }
+      
       self.registrationView.registerButton.isEnabled = isFormValid
       if isFormValid {
         self.registrationView.registerButton.backgroundColor = #colorLiteral(red: 0.8273344636, green: 0.09256268293, blue: 0.324395299, alpha: 1)
@@ -71,6 +86,45 @@ class RegistrationController: UIViewController {
         self.registrationView.registerButton.setTitleColor(.darkGray, for: .normal)
       }
     }
+    
+    registrationViewModel.bindableImage.bind { [weak self] (image) in
+      guard let self = self else { return }
+      self.registrationView.selectPhotoButton.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+    }
+    
+    registrationViewModel.bindableIsRegistering.bind { [weak self] (isRegistering) in
+      guard let self = self else { return }
+      guard let isRegistering = isRegistering else { return }
+      if isRegistering {
+        self.registrationHUD.textLabel.text = "Register"
+        self.registrationHUD.show(in: self.view)
+      } else {
+        self.registrationHUD.dismiss()
+      }
+    }
+  }
+  
+  // MARK: - Registration
+  
+  @objc fileprivate func handleRegisterTapped() {
+    handleTapGesture()
+    registrationView.registerButton.isEnabled = false
+    registrationViewModel.performRegistration { (error) in
+      if let error = error {
+        print(error)
+        self.showHUDWithError(error)
+        self.registrationView.registerButton.isEnabled = true
+        self.registrationViewModel.bindableIsRegistering.value = false
+      }
+      
+      print("successfully create user and saved photo to storage")
+    }
+  }
+  
+  @objc fileprivate func handleSelectPhotoTapped() {
+    imagePickerController.delegate = self
+    imagePickerController.isEditing = true
+    present(imagePickerController, animated: true)
   }
   
   // MARK: - Keyboard
@@ -85,14 +139,14 @@ class RegistrationController: UIViewController {
     }
   }
   
-  @objc fileprivate func handleKeyboardShow(notification: Notification) {
+  @objc fileprivate func handleKeyboardShow(_ notification: Notification) {
     guard let value = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-    let keyboardFrame = value.cgRectValue
+    let keyboardHeight = value.cgRectValue.height
     let stackViewY = registrationView.stackView.frame.origin.y
     let stackViewHeight = registrationView.stackView.frame.height
     let bottomSpace = view.frame.height - stackViewY - stackViewHeight
-    let difference = keyboardFrame.height - bottomSpace
-    self.view.transform = CGAffineTransform(translationX: 0, y: -difference - 8)
+    let difference = keyboardHeight - bottomSpace
+    view.transform = CGAffineTransform(translationX: 0, y: -difference - 8)
   }
   
   @objc fileprivate func handleKeyboardHide(notification: Notification) {
@@ -101,8 +155,32 @@ class RegistrationController: UIViewController {
     })
   }
   
-  @objc fileprivate func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+  @objc fileprivate func handleTapGesture() {
     view.endEditing(true)
+  }
+  
+  // MARK: - Helpers
+  
+  fileprivate func showHUDWithError(_ error: Error) {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Failed Registration"
+    hud.detailTextLabel.text = error.localizedDescription
+    hud.show(in: view)
+    hud.dismiss(afterDelay: 2.5)
+  }
+  
+}
+
+extension RegistrationController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+  
+  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    let image = info[.originalImage] as? UIImage
+    registrationViewModel.bindableImage.value = image
+    dismiss(animated: true, completion: nil)
+  }
+  
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    dismiss(animated: true, completion: nil)
   }
   
 }
