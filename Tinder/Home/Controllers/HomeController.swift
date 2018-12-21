@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 class HomeController: UIViewController {
   
@@ -18,26 +19,21 @@ class HomeController: UIViewController {
   
   // MARK: Model
   
-  var producers = [
-    User(name: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
-    User(name: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
-    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster"),
-    User(name: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
-    User(name: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
-    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster")
-  ] as [CardViewModelProducer]
+//  var producers = [
+//    User(uid: "1", fullName: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
+//    User(uid: "2", fullName: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
+//    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster"),
+//    User(uid: "3", fullName: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
+//    User(uid: "4", fullName: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
+//    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster")
+//  ] as [CardViewModelProducer]
+
+  var producers: [CardViewModelProducer] = []
 
   override func viewDidLoad() {
     super.viewDidLoad()
     setupLayout()
-    
-    let cardViewModels = producers.reversed().map { $0.toCardViewModel() }
-    cardViewModels.forEach {
-      let dummyCard = CardView()
-      dummyCard.cardViewModel = $0
-      cardDeckView.addSubview(dummyCard)
-      dummyCard.fillSuperview()
-    }
+    retrieveUsers()
   }
   
   // MARK: - Setup
@@ -61,6 +57,38 @@ class HomeController: UIViewController {
       bottom: view.safeAreaLayoutGuide.bottomAnchor,
       trailing: view.trailingAnchor
     )
+    
+    topNavigationStackView.profileButton.addTarget(self, action: #selector(handleProfileButtonTapped), for: .touchUpInside)
+  }
+  
+  fileprivate func retrieveUsers() {
+    Firestore.firestore().collection("users").getDocuments { (snapshot, error) in
+      if let error = error {
+        print(error)
+        return
+      }
+      
+      snapshot?.documents.forEach {
+        let dictionary = $0.data()
+        let user = User(dictionary: dictionary)
+        self.producers.append(user)
+      }
+      
+      let cardViewModels = self.producers.reversed().map { $0.toCardViewModel() }
+      cardViewModels.forEach {
+        let dummyCard = CardView()
+        dummyCard.cardViewModel = $0
+        self.cardDeckView.addSubview(dummyCard)
+        self.cardDeckView.sendSubviewToBack(dummyCard)
+        dummyCard.fillSuperview()
+      }
+    }
+  }
+  
+  @objc fileprivate func handleProfileButtonTapped() {
+    let profileController = ProfileController()
+    let navController = UINavigationController(rootViewController: profileController)
+    present(navController, animated: true, completion: nil)
   }
 
 }

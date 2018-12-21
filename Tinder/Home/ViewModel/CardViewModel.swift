@@ -15,7 +15,6 @@ protocol CardViewModelProducer {
 class CardViewModel {
   
   var bindableSelectedImageIndex = Bindable<Int>()
-  var bindableSelectedImage = Bindable<UIImage>()
   
   let imageNames: [String]
   let attributedText: NSAttributedString

@@ -96,7 +96,7 @@ class RegistrationController: UIViewController {
       guard let self = self else { return }
       guard let isRegistering = isRegistering else { return }
       if isRegistering {
-        self.registrationHUD.textLabel.text = "Register"
+        self.registrationHUD.textLabel.text = "Registering"
         self.registrationHUD.show(in: self.view)
       } else {
         self.registrationHUD.dismiss()

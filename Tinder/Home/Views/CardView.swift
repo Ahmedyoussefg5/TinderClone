@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class CardView: UIView {
   
@@ -52,32 +53,31 @@ class CardView: UIView {
     didSet {
       informationLabel.attributedText = cardViewModel.attributedText
       informationLabel.textAlignment = cardViewModel.textAlignment
-
+      
+      // setup indicator views
       (0..<cardViewModel.imageNames.count).forEach { (_) in
         let view = UIView()
         view.backgroundColor = unselectedImageColor
         imageSelectionStackView.addArrangedSubview(view)
       }
+      imageSelectionStackView.arrangedSubviews.first?.backgroundColor = .white
+      
+      let firstImageUrl = cardViewModel.imageNames.first ?? ""
+      if let url = URL(string: firstImageUrl) {
+        backgroundImageView.sd_setImage(with: url, completed: nil)
+      }
       
       cardViewModel.bindableSelectedImageIndex.bind { [weak self] (index) in
         guard let self = self else { return }
         guard let index = index else { return }
-        let imageName = self.cardViewModel.imageNames[index]
-        let image = UIImage(named: imageName)
-        self.cardViewModel.bindableSelectedImage.value = image
+        let imageUrlString = self.cardViewModel.imageNames[index]
+        if let url = URL(string: imageUrlString) {
+          self.backgroundImageView.sd_setImage(with: url, completed: nil)
+        }
+        
         self.imageSelectionStackView.arrangedSubviews.forEach { $0.backgroundColor = self.unselectedImageColor }
         self.imageSelectionStackView.arrangedSubviews[index].backgroundColor = .white
       }
-      
-      cardViewModel.bindableSelectedImage.bind { [weak self] (image) in
-        guard let self = self else { return }
-        guard let image = image else { return }
-        self.backgroundImageView.image = image
-      }
-      
-      guard let firstImage = UIImage(named: cardViewModel.imageNames.first ?? "") else { return }
-      backgroundImageView.image = firstImage
-      imageSelectionStackView.arrangedSubviews.first?.backgroundColor = .white
     }
   }
   

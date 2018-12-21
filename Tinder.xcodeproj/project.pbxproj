@@ -13,6 +13,11 @@
 		7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3FECE021CC31C400996F97 /* RegistrationViewModel.swift */; };
 		7D3FECE321CC46D200996F97 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */; };
 		7D6FA10321CC76F900C3C2D2 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10221CC76F900C3C2D2 /* Bindable.swift */; };
+		7D6FA10621CD682200C3C2D2 /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10521CD682200C3C2D2 /* ProfileController.swift */; };
+		7D6FA10821CD71A500C3C2D2 /* ProfileImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10721CD71A500C3C2D2 /* ProfileImageButton.swift */; };
+		7D6FA10C21CD79AA00C3C2D2 /* ProfileSectionLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10B21CD79AA00C3C2D2 /* ProfileSectionLabel.swift */; };
+		7D6FA10E21CD7B1B00C3C2D2 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10D21CD7B1B00C3C2D2 /* ProfileCell.swift */; };
+		7D6FA11021CD7BF400C3C2D2 /* ProfileTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10F21CD7BF400C3C2D2 /* ProfileTextField.swift */; };
 		7DBF4B5221CACB6D00648190 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBF4B5121CACB6D00648190 /* AppDelegate.swift */; };
 		7DBF4B5421CACB6D00648190 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DBF4B5321CACB6D00648190 /* HomeController.swift */; };
 		7DBF4B5921CACB6E00648190 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DBF4B5821CACB6E00648190 /* Assets.xcassets */; };
@@ -35,6 +40,11 @@
 		7D3FECE021CC31C400996F97 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7D6FA10221CC76F900C3C2D2 /* Bindable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bindable.swift; sourceTree = "<group>"; };
+		7D6FA10521CD682200C3C2D2 /* ProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileController.swift; sourceTree = "<group>"; };
+		7D6FA10721CD71A500C3C2D2 /* ProfileImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageButton.swift; sourceTree = "<group>"; };
+		7D6FA10B21CD79AA00C3C2D2 /* ProfileSectionLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSectionLabel.swift; sourceTree = "<group>"; };
+		7D6FA10D21CD7B1B00C3C2D2 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
+		7D6FA10F21CD7BF400C3C2D2 /* ProfileTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTextField.swift; sourceTree = "<group>"; };
 		7DBF4B4E21CACB6D00648190 /* Tinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DBF4B5121CACB6D00648190 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7DBF4B5321CACB6D00648190 /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
@@ -114,6 +124,34 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		7D6FA10421CD680F00C3C2D2 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				7D6FA10921CD798B00C3C2D2 /* Views */,
+				7D6FA10A21CD799300C3C2D2 /* Controllers */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		7D6FA10921CD798B00C3C2D2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7D6FA10721CD71A500C3C2D2 /* ProfileImageButton.swift */,
+				7D6FA10B21CD79AA00C3C2D2 /* ProfileSectionLabel.swift */,
+				7D6FA10D21CD7B1B00C3C2D2 /* ProfileCell.swift */,
+				7D6FA10F21CD7BF400C3C2D2 /* ProfileTextField.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7D6FA10A21CD799300C3C2D2 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				7D6FA10521CD682200C3C2D2 /* ProfileController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 		7DBF4B4521CACB6C00648190 = {
 			isa = PBXGroup;
 			children = (
@@ -135,10 +173,11 @@
 		7DBF4B5021CACB6D00648190 /* Tinder */ = {
 			isa = PBXGroup;
 			children = (
-				7DBF4B6521CAD37C00648190 /* Extensions */,
 				7DBF4B5121CACB6D00648190 /* AppDelegate.swift */,
+				7DBF4B6521CAD37C00648190 /* Extensions */,
 				7D3FECD621CC167E00996F97 /* Registration */,
 				7D3FECD521CC166700996F97 /* Login */,
+				7D6FA10421CD680F00C3C2D2 /* Profile */,
 				7DBF4B6621CAD48200648190 /* Home */,
 				7DBF4B5821CACB6E00648190 /* Assets.xcassets */,
 				7DBF4B5A21CACB6E00648190 /* LaunchScreen.storyboard */,
@@ -351,15 +390,20 @@
 				7DBF4B6B21CAD98500648190 /* BottomNavigationStackView.swift in Sources */,
 				7DBF4B5421CACB6D00648190 /* HomeController.swift in Sources */,
 				7D3FECDA21CC242100996F97 /* RegistrationTextField.swift in Sources */,
+				7D6FA10821CD71A500C3C2D2 /* ProfileImageButton.swift in Sources */,
 				7D3FECDC21CC273600996F97 /* RegistrationView.swift in Sources */,
 				7DDC53FC21CB343F0061FD94 /* Advertiser.swift in Sources */,
+				7D6FA10621CD682200C3C2D2 /* ProfileController.swift in Sources */,
 				7DBF4B5221CACB6D00648190 /* AppDelegate.swift in Sources */,
 				7DBF4B6921CAD4B600648190 /* TopNavigationStackView.swift in Sources */,
 				7DDC53FA21CB2A0D0061FD94 /* CardViewModel.swift in Sources */,
 				7D6FA10321CC76F900C3C2D2 /* Bindable.swift in Sources */,
+				7D6FA11021CD7BF400C3C2D2 /* ProfileTextField.swift in Sources */,
+				7D6FA10C21CD79AA00C3C2D2 /* ProfileSectionLabel.swift in Sources */,
 				7DBF4B6D21CAE2EE00648190 /* CardView.swift in Sources */,
 				7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */,
 				7DBF4B6421CAD37800648190 /* Extensions+UIView.swift in Sources */,
+				7D6FA10E21CD7B1B00C3C2D2 /* ProfileCell.swift in Sources */,
 				7D3FECD821CC168E00996F97 /* RegistrationController.swift in Sources */,
 				7DDC53F721CB26700061FD94 /* User.swift in Sources */,
 			);
