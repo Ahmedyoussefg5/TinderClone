@@ -8,12 +8,14 @@
 
 import UIKit
 
-struct User {
+struct User: Codable {
   var uid: String?
   var fullName: String?
   var age: Int?
   var profession: String?
-  var imageNames: [String]?
+  var imageUrl1: String?
+  var imageUrl2: String?
+  var imageUrl3: String?
 }
 
 extension User {
@@ -22,7 +24,21 @@ extension User {
     self.fullName = dictionary["fullName"] as? String
     self.age = dictionary["age"] as? Int
     self.profession = dictionary["profession"] as? String
-    self.imageNames = [dictionary["imageUrl1"] as? String ?? ""]
+    self.imageUrl1 = dictionary["imageUrl1"] as? String
+    self.imageUrl2 = dictionary["imageUrl2"] as? String
+    self.imageUrl3 = dictionary["imageUrl3"] as? String
+  }
+  
+  func toDictionary() -> [String: Any] {
+    var dictionary: [String: Any] = [:]
+    dictionary["uid"] = uid
+    dictionary["fullName"] = fullName
+    dictionary["age"] = age
+    dictionary["profession"] = profession
+    dictionary["imageUrl1"] = imageUrl1
+    dictionary["imageUrl2"] = imageUrl2
+    dictionary["imageUrl3"] = imageUrl3
+    return dictionary
   }
 }
 
@@ -41,7 +57,8 @@ extension User: CardViewModelProducer {
     let professionAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .medium)]
     attributedText.append(NSAttributedString(string: professionText, attributes: professionAttributes))
     
-    return CardViewModel(imageNames: imageNames ?? [], attributedText: attributedText, textAlignment: .left)
+    let imageNames = [imageUrl1 ?? "", imageUrl2 ?? "", imageUrl3 ?? ""]
+    return CardViewModel(imageUrls: imageNames, attributedText: attributedText, textAlignment: .left)
   }
   
 }

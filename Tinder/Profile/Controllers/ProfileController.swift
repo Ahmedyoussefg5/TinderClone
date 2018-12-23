@@ -7,10 +7,20 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
+import JGProgressHUD
+import SDWebImage
 
 class ProfileController: UITableViewController {
   
   // MARK: - Views
+  
+  let progessHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Fetching user info"
+    return hud
+  }()
   
   let image1Button = ProfileImageButton(type: .system)
   let image2Button = ProfileImageButton(type: .system)
@@ -47,13 +57,9 @@ class ProfileController: UITableViewController {
     return header
   }()
   
-  let sectionDescriptions = [
-    ("Header", "None"),
-    ("Name", "Enter name"),
-    ("Profession", "Enter profession"),
-    ("Age", "Enter age"),
-    ("Bio", "Enter bio")
-  ]
+  let sectionTitles = ["Header", "Name", "Profession", "Age", "Bio"]
+  
+  var user: User?
   
   // MARK: - Configuation constants
   
@@ -71,20 +77,22 @@ class ProfileController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupLayout()
+    retrieveCurrentUser()
   }
   
   // MARK: - Setup
   
   fileprivate func setupLayout() {
     title = profileTitleText
+    navigationController?.navigationBar.prefersLargeTitles = true
+    
     tableView.backgroundColor = profileBackgroundColor
     tableView.keyboardDismissMode = .interactive
     tableView.tableFooterView = UIView()
-    navigationController?.navigationBar.prefersLargeTitles = true
     
     let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancelTapped))
     let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleCancelTapped))
-    let saveButton = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleCancelTapped))
+    let saveButton = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSaveTapped))
     
     navigationItem.leftBarButtonItem = cancelButton
     navigationItem.rightBarButtonItems = [logoutButton, saveButton]
@@ -92,11 +100,40 @@ class ProfileController: UITableViewController {
     [image1Button, image2Button, image3Button].forEach {
       $0.addTarget(self, action: #selector(handleImageButtonTapped), for: .touchUpInside)
     }
-    
+  }
+  
+  fileprivate func retrieveCurrentUser() {
+    progessHUD.show(in: view)
+    guard let uid = Auth.auth().currentUser?.uid else { return }
+    Firestore.firestore().collection("users").document(uid).getDocument { (snapshot, error) in
+      if let error = error {
+        print(error)
+        return
+      }
+      
+      guard let dictionary = snapshot?.data() else { return }
+      self.user = User(dictionary: dictionary)
+      self.loadUserPhotos()
+      self.progessHUD.dismiss()
+      self.tableView.reloadData()
+    }
   }
   
   @objc fileprivate func handleCancelTapped() {
     dismiss(animated: true, completion: nil)
+  }
+  
+  @objc fileprivate func handleSaveTapped() {
+    guard let uid = Auth.auth().currentUser?.uid else { return }
+    guard let documentData = user?.toDictionary() else { return }
+    Firestore.firestore().collection("users").document(uid).setData(documentData) { (error) in
+      if let error = error {
+        print(error)
+        return
+      }
+      
+     print("successfully updated user settings")
+    }
   }
   
   @objc fileprivate func handleImageButtonTapped(button: UIButton) {
@@ -104,6 +141,24 @@ class ProfileController: UITableViewController {
     profileImagePicker.selectedButton = button
     profileImagePicker.delegate = self
     present(profileImagePicker, animated: true, completion: nil)
+  }
+  
+  fileprivate func loadUserPhotos() {
+    if let imageUrl1 = user?.imageUrl1, let url = URL(string: imageUrl1) {
+      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
+        self.image1Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+      }
+    }
+    if let imageUrl2 = user?.imageUrl2, let url = URL(string: imageUrl2) {
+      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
+        self.image2Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+      }
+    }
+    if let imageUrl3 = user?.imageUrl3, let url = URL(string: imageUrl3) {
+      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
+        self.image3Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+      }
+    }
   }
   
 }
@@ -119,7 +174,7 @@ extension ProfileController {
     }
     
     let label = ProfileSectionLabel()
-    label.text = sectionDescriptions[section].0
+    label.text = sectionTitles[section]
     return label
   }
   
@@ -135,12 +190,54 @@ extension ProfileController {
     return section == 0 ? 0 : 1
   }
   
+  @objc fileprivate func handleEditingChanged(textField: UITextField) {
+    switch textField.tag {
+    case 1:
+      user?.fullName = textField.text
+    case 2:
+      user?.profession = textField.text
+    case 3:
+      guard let age = textField.text else { return }
+      user?.age = Int(age)
+    case 4:
+     // user.bio = textField.text
+      print()
+    default:
+      ()
+    }
+  }
+  
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = ProfileCell.init(style: .default, reuseIdentifier: nil)
-    cell.textField.placeholder = sectionDescriptions[indexPath.section].1
-    if indexPath.section == 3 {
+    
+    switch indexPath.section {
+    case 1:
+      cell.textField.placeholder = "Enter full name"
+      cell.textField.text = user?.fullName
+      cell.textField.tag = 1
+      cell.textField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+    case 2:
+      cell.textField.placeholder = "Enter profession"
+      cell.textField.text = user?.profession
+      cell.textField.tag = 2
+      cell.textField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+    case 3:
       cell.textField.keyboardType = .numberPad
+      cell.textField.tag = 3
+      cell.textField.placeholder = "Enter age"
+      cell.textField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+      if let age = user?.age {
+        cell.textField.text = String(age)
+      }
+    case 4:
+      cell.textField.placeholder = "Enter bio"
+      cell.textField.text = "Bio"
+      cell.textField.tag = 4
+      cell.textField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+    default:
+      ()
     }
+    
     return cell
   }
   

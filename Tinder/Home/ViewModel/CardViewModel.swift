@@ -16,12 +16,12 @@ class CardViewModel {
   
   var bindableSelectedImageIndex = Bindable<Int>()
   
-  let imageNames: [String]
+  let imageUrls: [String]
   let attributedText: NSAttributedString
   let textAlignment: NSTextAlignment
   
-  init(imageNames: [String], attributedText: NSAttributedString, textAlignment: NSTextAlignment) {
-    self.imageNames = imageNames
+  init(imageUrls: [String], attributedText: NSAttributedString, textAlignment: NSTextAlignment) {
+    self.imageUrls = imageUrls
     self.attributedText = attributedText
     self.textAlignment = textAlignment
     self.bindableSelectedImageIndex.value = 0
@@ -35,7 +35,7 @@ extension CardViewModel {
   
   func goToNextPhoto() {
     guard let oldValue = bindableSelectedImageIndex.value else { return }
-    bindableSelectedImageIndex.value = min(oldValue + 1, imageNames.count - 1)
+    bindableSelectedImageIndex.value = min(oldValue + 1, imageUrls.count - 1)
   }
   
   func goToPreviousPhoto() {

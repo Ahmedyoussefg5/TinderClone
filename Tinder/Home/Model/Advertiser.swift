@@ -23,7 +23,7 @@ extension Advertiser: CardViewModelProducer {
     let brandNameAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 22, weight: .medium)]
     attributedText.append(NSAttributedString(string: "\n" + brandName, attributes: brandNameAttributes))
     
-    return CardViewModel(imageNames: [posterPhotoName], attributedText: attributedText, textAlignment: .center)
+    return CardViewModel(imageUrls: [posterPhotoName], attributedText: attributedText, textAlignment: .center)
   }
   
 }

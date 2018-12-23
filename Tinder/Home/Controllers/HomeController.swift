@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseFirestore
+import JGProgressHUD
 
 class HomeController: UIViewController {
   
@@ -17,17 +18,12 @@ class HomeController: UIViewController {
   let cardDeckView = UIView()
   let bottomNavigationStackView = BottomNavigationStackView()
   
-  // MARK: Model
+  let progessHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Fetching users"
+    return hud
+  }()
   
-//  var producers = [
-//    User(uid: "1", fullName: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
-//    User(uid: "2", fullName: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
-//    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster"),
-//    User(uid: "3", fullName: "Kelly", age: 23, profession: "Teacher", imageNames: ["kelly1", "kelly2", "kelly3"]),
-//    User(uid: "4", fullName: "Jane", age: 18, profession: "DJ", imageNames: ["jane1", "jane2", "jane3"]),
-//    Advertiser(title: "Slide Out Twitter Menu", brandName: "Lets Build That App", posterPhotoName: "slide_out_menu_poster")
-//  ] as [CardViewModelProducer]
-
   var producers: [CardViewModelProducer] = []
 
   override func viewDidLoad() {
@@ -62,8 +58,11 @@ class HomeController: UIViewController {
   }
   
   fileprivate func retrieveUsers() {
+    progessHUD.show(in: view)
     Firestore.firestore().collection("users").getDocuments { (snapshot, error) in
       if let error = error {
+        self.progessHUD.dismiss()
+        self.showHUDWithError(error)
         print(error)
         return
       }
@@ -82,6 +81,8 @@ class HomeController: UIViewController {
         self.cardDeckView.sendSubviewToBack(dummyCard)
         dummyCard.fillSuperview()
       }
+      
+      self.progessHUD.dismiss()
     }
   }
   
@@ -89,6 +90,14 @@ class HomeController: UIViewController {
     let profileController = ProfileController()
     let navController = UINavigationController(rootViewController: profileController)
     present(navController, animated: true, completion: nil)
+  }
+  
+  fileprivate func showHUDWithError(_ error: Error) {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Failed retrieving users"
+    hud.detailTextLabel.text = error.localizedDescription
+    hud.show(in: view)
+    hud.dismiss(afterDelay: 2.5)
   }
 
 }

@@ -55,14 +55,15 @@ class CardView: UIView {
       informationLabel.textAlignment = cardViewModel.textAlignment
       
       // setup indicator views
-      (0..<cardViewModel.imageNames.count).forEach { (_) in
+      for url in cardViewModel.imageUrls where url != "" {
         let view = UIView()
         view.backgroundColor = unselectedImageColor
         imageSelectionStackView.addArrangedSubview(view)
       }
       imageSelectionStackView.arrangedSubviews.first?.backgroundColor = .white
       
-      let firstImageUrl = cardViewModel.imageNames.first ?? ""
+      
+      let firstImageUrl = cardViewModel.imageUrls.first ?? ""
       if let url = URL(string: firstImageUrl) {
         backgroundImageView.sd_setImage(with: url, completed: nil)
       }
@@ -70,7 +71,7 @@ class CardView: UIView {
       cardViewModel.bindableSelectedImageIndex.bind { [weak self] (index) in
         guard let self = self else { return }
         guard let index = index else { return }
-        let imageUrlString = self.cardViewModel.imageNames[index]
+        let imageUrlString = self.cardViewModel.imageUrls[index]
         if let url = URL(string: imageUrlString) {
           self.backgroundImageView.sd_setImage(with: url, completed: nil)
         }
