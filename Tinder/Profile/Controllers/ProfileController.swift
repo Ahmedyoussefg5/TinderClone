@@ -13,7 +13,13 @@ import FirebaseStorage
 import JGProgressHUD
 import SDWebImage
 
+protocol ProfileDelegate {
+  func profileWasSaved()
+}
+
 class ProfileController: UITableViewController {
+  
+  var delegate: ProfileDelegate?
   
   // MARK: - Views
   
@@ -64,7 +70,7 @@ class ProfileController: UITableViewController {
     return header
   }()
   
-  let sectionTitles = ["Header", "Name", "Profession", "Age", "Bio"]
+  let sectionTitles = ["Header", "Name", "Profession", "Age", "Bio", "Seeking Age Range"]
   
   var user: User?
   
@@ -109,8 +115,17 @@ class ProfileController: UITableViewController {
     }
   }
   
+  // MARK: - Helpers
+  
   fileprivate func retrieveCurrentUser() {
     progessHUD.show(in: view)
+    
+    guard user == nil else {
+      loadUserPhotos()
+      tableView.reloadData()
+      return
+    }
+    
     guard let uid = Auth.auth().currentUser?.uid else { return }
     Firestore.firestore().collection("users").document(uid).getDocument { (snapshot, error) in
       if let error = error {
@@ -123,34 +138,6 @@ class ProfileController: UITableViewController {
       self.loadUserPhotos()
       self.tableView.reloadData()
     }
-  }
-  
-  @objc fileprivate func handleCancelTapped() {
-    dismiss(animated: true, completion: nil)
-  }
-  
-  @objc fileprivate func handleSaveTapped() {
-    guard let uid = Auth.auth().currentUser?.uid else { return }
-    guard let documentData = user?.toDictionary() else { return }
-    view.endEditing(true)
-    updatingProfileHUD.show(in: view)
-    Firestore.firestore().collection("users").document(uid).setData(documentData) { (error) in
-      self.updatingProfileHUD.dismiss()
-      
-      if let error = error {
-        print(error)
-        return
-      }
-      
-      print("successfully updated user settings")
-    }
-  }
-  
-  @objc fileprivate func handleImageButtonTapped(button: UIButton) {
-    let profileImagePicker = ProfileImagePicker()
-    profileImagePicker.selectedButton = button
-    profileImagePicker.delegate = self
-    present(profileImagePicker, animated: true, completion: nil)
   }
   
   fileprivate func loadUserPhotos() {
@@ -170,6 +157,70 @@ class ProfileController: UITableViewController {
       }
     }
     self.progessHUD.dismiss()
+  }
+  
+  // MARK: - Selectors
+  
+  // MARK: Top navigation buttons
+  
+  @objc fileprivate func handleCancelTapped() {
+    dismiss(animated: true, completion: nil)
+  }
+  
+  @objc fileprivate func handleSaveTapped() {
+    guard let uid = Auth.auth().currentUser?.uid else { return }
+    guard let documentData = user?.toDictionary() else { return }
+    view.endEditing(true)
+    updatingProfileHUD.show(in: view)
+    Firestore.firestore().collection("users").document(uid).setData(documentData) { (error) in
+      self.updatingProfileHUD.dismiss()
+      
+      if let error = error {
+        print(error)
+        return
+      }
+      
+      print("successfully updated user settings")
+      self.dismiss(animated: true, completion: {
+        self.delegate?.profileWasSaved()
+      })
+    }
+  }
+  
+  // MARK: - ImageButtons
+  
+  @objc fileprivate func handleImageButtonTapped(button: UIButton) {
+    let profileImagePicker = ProfileImagePicker()
+    profileImagePicker.selectedButton = button
+    profileImagePicker.delegate = self
+    present(profileImagePicker, animated: true, completion: nil)
+  }
+  
+  // MARK: Sliders
+  
+  @objc fileprivate func handleMinAgeChanged(slider: UISlider) {
+    guard let ageRangeCell = tableView.cellForRow(at: IndexPath(row: 0, section: 5)) as? AgeRangeCell else { return }
+    
+    let value = Int(slider.value)
+    if value <= Int(ageRangeCell.maxAgeSlider.value) {
+      ageRangeCell.minAgeLabel.text = "Min: \(value)"
+      user?.minSeekingAge = value
+    } else {
+      ageRangeCell.minAgeSlider.value = ageRangeCell.maxAgeSlider.value
+    }
+  }
+  
+  @objc fileprivate func handleMaxAgeChanged(slider: UISlider) {
+    guard let ageRangeCell = tableView.cellForRow(at: IndexPath(row: 0, section: 5)) as? AgeRangeCell else { return }
+    
+    let value = Int(slider.value)
+    if value <= Int(ageRangeCell.minAgeSlider.value) {
+      ageRangeCell.minAgeSlider.value = ageRangeCell.maxAgeSlider.value
+      handleMinAgeChanged(slider: ageRangeCell.minAgeSlider)
+    }
+
+    ageRangeCell.maxAgeLabel.text = "Max: \(value)"
+    user?.maxSeekingAge = value
   }
   
 }
@@ -194,7 +245,7 @@ extension ProfileController {
   }
   
   override func numberOfSections(in tableView: UITableView) -> Int {
-    return 5
+    return 6
   }
   
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -244,6 +295,15 @@ extension ProfileController {
       cell.textField.text = user?.bio
       cell.textField.tag = 4
       cell.textField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+    case 5:
+      let ageRangeCell = AgeRangeCell.init(style: .default, reuseIdentifier: nil)
+      ageRangeCell.minAgeSlider.value = Float(user?.minSeekingAge ?? 18)
+      ageRangeCell.minAgeLabel.text = "Min: \(user?.minSeekingAge ?? 18)"
+      ageRangeCell.minAgeSlider.addTarget(self, action: #selector(handleMinAgeChanged), for: .valueChanged)
+      ageRangeCell.maxAgeSlider.value = Float(user?.maxSeekingAge ?? 18)
+      ageRangeCell.maxAgeLabel.text = "Max: \(user?.maxSeekingAge ?? 18)"
+      ageRangeCell.maxAgeSlider.addTarget(self, action: #selector(handleMaxAgeChanged), for: .valueChanged)
+      return ageRangeCell
     default:
       ()
     }
@@ -269,6 +329,7 @@ extension ProfileController: UIImagePickerControllerDelegate & UINavigationContr
         self.user?.imageUrl3 = downloadUrl
       }
     }
+    
     dismiss(animated: true, completion: nil)
   }
   
@@ -294,7 +355,6 @@ extension ProfileController: UIImagePickerControllerDelegate & UINavigationContr
       })
     })
   }
-  
   
   func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
     dismiss(animated: true, completion: nil)

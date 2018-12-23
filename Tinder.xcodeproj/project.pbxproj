@@ -12,6 +12,7 @@
 		7D3FECDC21CC273600996F97 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3FECDB21CC273600996F97 /* RegistrationView.swift */; };
 		7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3FECE021CC31C400996F97 /* RegistrationViewModel.swift */; };
 		7D3FECE321CC46D200996F97 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */; };
+		7D6A036421D0166C00B672CA /* AgeRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6A036321D0166C00B672CA /* AgeRangeCell.swift */; };
 		7D6FA10321CC76F900C3C2D2 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10221CC76F900C3C2D2 /* Bindable.swift */; };
 		7D6FA10621CD682200C3C2D2 /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10521CD682200C3C2D2 /* ProfileController.swift */; };
 		7D6FA10821CD71A500C3C2D2 /* ProfileImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6FA10721CD71A500C3C2D2 /* ProfileImageButton.swift */; };
@@ -39,6 +40,7 @@
 		7D3FECDB21CC273600996F97 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 		7D3FECE021CC31C400996F97 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		7D6A036321D0166C00B672CA /* AgeRangeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeRangeCell.swift; sourceTree = "<group>"; };
 		7D6FA10221CC76F900C3C2D2 /* Bindable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bindable.swift; sourceTree = "<group>"; };
 		7D6FA10521CD682200C3C2D2 /* ProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileController.swift; sourceTree = "<group>"; };
 		7D6FA10721CD71A500C3C2D2 /* ProfileImageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageButton.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				7D6FA10721CD71A500C3C2D2 /* ProfileImageButton.swift */,
 				7D6FA10B21CD79AA00C3C2D2 /* ProfileSectionLabel.swift */,
 				7D6FA10D21CD7B1B00C3C2D2 /* ProfileCell.swift */,
+				7D6A036321D0166C00B672CA /* AgeRangeCell.swift */,
 				7D6FA10F21CD7BF400C3C2D2 /* ProfileTextField.swift */,
 			);
 			path = Views;
@@ -402,6 +405,7 @@
 				7D6FA10C21CD79AA00C3C2D2 /* ProfileSectionLabel.swift in Sources */,
 				7DBF4B6D21CAE2EE00648190 /* CardView.swift in Sources */,
 				7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */,
+				7D6A036421D0166C00B672CA /* AgeRangeCell.swift in Sources */,
 				7DBF4B6421CAD37800648190 /* Extensions+UIView.swift in Sources */,
 				7D6FA10E21CD7B1B00C3C2D2 /* ProfileCell.swift in Sources */,
 				7D3FECD821CC168E00996F97 /* RegistrationController.swift in Sources */,
