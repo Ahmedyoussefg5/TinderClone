@@ -16,6 +16,7 @@ struct User: Codable {
   var imageUrl1: String?
   var imageUrl2: String?
   var imageUrl3: String?
+  var bio: String?
 }
 
 extension User {
@@ -27,6 +28,7 @@ extension User {
     self.imageUrl1 = dictionary["imageUrl1"] as? String
     self.imageUrl2 = dictionary["imageUrl2"] as? String
     self.imageUrl3 = dictionary["imageUrl3"] as? String
+    self.bio = dictionary["bio"] as? String
   }
   
   func toDictionary() -> [String: Any] {
@@ -38,6 +40,7 @@ extension User {
     dictionary["imageUrl1"] = imageUrl1
     dictionary["imageUrl2"] = imageUrl2
     dictionary["imageUrl3"] = imageUrl3
+    dictionary["bio"] = bio
     return dictionary
   }
 }

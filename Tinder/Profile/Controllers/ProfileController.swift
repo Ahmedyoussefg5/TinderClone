@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 import JGProgressHUD
 import SDWebImage
 
@@ -22,6 +23,12 @@ class ProfileController: UITableViewController {
     return hud
   }()
   
+  let updatingProfileHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Updating profile"
+    return hud
+  }()
+
   let image1Button = ProfileImageButton(type: .system)
   let image2Button = ProfileImageButton(type: .system)
   let image3Button = ProfileImageButton(type: .system)
@@ -114,7 +121,6 @@ class ProfileController: UITableViewController {
       guard let dictionary = snapshot?.data() else { return }
       self.user = User(dictionary: dictionary)
       self.loadUserPhotos()
-      self.progessHUD.dismiss()
       self.tableView.reloadData()
     }
   }
@@ -126,13 +132,17 @@ class ProfileController: UITableViewController {
   @objc fileprivate func handleSaveTapped() {
     guard let uid = Auth.auth().currentUser?.uid else { return }
     guard let documentData = user?.toDictionary() else { return }
+    view.endEditing(true)
+    updatingProfileHUD.show(in: view)
     Firestore.firestore().collection("users").document(uid).setData(documentData) { (error) in
+      self.updatingProfileHUD.dismiss()
+      
       if let error = error {
         print(error)
         return
       }
       
-     print("successfully updated user settings")
+      print("successfully updated user settings")
     }
   }
   
@@ -159,6 +169,7 @@ class ProfileController: UITableViewController {
         self.image3Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
       }
     }
+    self.progessHUD.dismiss()
   }
   
 }
@@ -200,8 +211,7 @@ extension ProfileController {
       guard let age = textField.text else { return }
       user?.age = Int(age)
     case 4:
-     // user.bio = textField.text
-      print()
+      user?.bio = textField.text
     default:
       ()
     }
@@ -231,7 +241,7 @@ extension ProfileController {
       }
     case 4:
       cell.textField.placeholder = "Enter bio"
-      cell.textField.text = "Bio"
+      cell.textField.text = user?.bio
       cell.textField.tag = 4
       cell.textField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
     default:
@@ -246,10 +256,45 @@ extension ProfileController {
 extension ProfileController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
   
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-    let image = (info[.originalImage] as? UIImage)?.withRenderingMode(.alwaysOriginal)
+    guard let image = (info[.originalImage] as? UIImage)?.withRenderingMode(.alwaysOriginal) else { return }
     (picker as? ProfileImagePicker)?.selectedButton?.setImage(image, for: .normal)
+    saveImageToFirebaseStorage(image) { [weak self] (downloadUrl) in
+      guard let self = self else { return }
+      guard let button = (picker as? ProfileImagePicker)?.selectedButton else { return }
+      if button == self.image1Button {
+        self.user?.imageUrl1 = downloadUrl
+      } else if button == self.image2Button {
+        self.user?.imageUrl2 = downloadUrl
+      } else {
+        self.user?.imageUrl3 = downloadUrl
+      }
+    }
     dismiss(animated: true, completion: nil)
   }
+  
+  fileprivate func saveImageToFirebaseStorage(_ image: UIImage, completion: @escaping (String?)->()) {
+    let filename = UUID().uuidString
+    let data = image.jpegData(compressionQuality: 0.75) ?? Data()
+    let ref = Storage.storage().reference(withPath: "/images/\(filename)")
+    ref.putData(data, metadata: nil, completion: { (_, error) in
+      if let error = error {
+        print(error)
+        return
+      }
+      
+      print("Successfully uploaded image to firebase storage")
+      ref.downloadURL(completion: { (url, error) in
+        if let error = error {
+          print(error)
+          return
+        }
+        
+        print("Successfully downloaded image url:", url?.absoluteString ?? "")
+        completion(url?.absoluteString)
+      })
+    })
+  }
+  
   
   func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
     dismiss(animated: true, completion: nil)
