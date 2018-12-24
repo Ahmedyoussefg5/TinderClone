@@ -1,57 +1,38 @@
 //
-//  RegistrationView.swift
+//  LoginView.swift
 //  Tinder
 //
-//  Created by Jason Ngo on 2018-12-20.
+//  Created by Jason Ngo on 2018-12-23.
 //  Copyright © 2018 Jason Ngo. All rights reserved.
 //
 
 import UIKit
 
-class RegistrationView: UIView {
+class LoginView: UIView {
   
   let gradientLayer = CAGradientLayer()
   
-  let selectPhotoButton: UIButton = {
-    let button = UIButton(type: .system)
-    button.setTitle("Select Photo", for: .normal)
-    button.setTitleColor(.black, for: .normal)
-    button.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .heavy)
-    button.backgroundColor = .white
-    button.imageView?.contentMode = .scaleAspectFill
-    button.clipsToBounds = true
-    button.layer.cornerRadius = 16
-    button.heightAnchor.constraint(equalToConstant: 275).isActive = true
-    return button
-  }()
-  
-  let fullNameTextfield: RegistrationTextField = {
-    let tf = RegistrationTextField(padding: 24, height: 44)
-    tf.placeholder = "Enter full name"
-    return tf
-  }()
-  
-  let emailTextfield: RegistrationTextField = {
+  let emailTextField: RegistrationTextField = {
     let tf = RegistrationTextField(padding: 24, height: 44)
     tf.placeholder = "Enter email"
     tf.keyboardType = .emailAddress
     return tf
   }()
   
-  let passwordTextfield: RegistrationTextField = {
+  let passwordTextField: RegistrationTextField = {
     let tf = RegistrationTextField(padding: 24, height: 44)
     tf.placeholder = "Enter password"
     tf.isSecureTextEntry = true
     return tf
   }()
   
-  let registerButton: UIButton = {
+  let loginButton: UIButton = {
     let button = UIButton(type: .system)
-    button.setTitle("Register", for: .normal)
+    button.setTitle("Login", for: .normal)
     button.setTitleColor(.darkGray, for: .normal)
     button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
     button.titleLabel?.textAlignment = .center
-    button.backgroundColor = #colorLiteral(red: 0.6693089008, green: 0.666139245, blue: 0.6693861485, alpha: 1)
+    button.backgroundColor = .gray
     button.heightAnchor.constraint(equalToConstant: 44).isActive = true
     button.layer.cornerRadius = 22
     button.isEnabled = false
@@ -59,17 +40,19 @@ class RegistrationView: UIView {
   }()
   
   lazy var stackView: UIStackView = {
-    let sv = UIStackView(arrangedSubviews:
-      [selectPhotoButton, fullNameTextfield, emailTextfield, passwordTextfield,registerButton]
-    )
+    let sv = UIStackView(arrangedSubviews: [
+      emailTextField,
+      passwordTextField,
+      loginButton
+      ])
     sv.spacing = 8
     sv.axis = .vertical
     return sv
   }()
   
-  let goToLoginButton: UIButton = {
+  let goToRegistrationButton: UIButton = {
     let button = UIButton(type: .system)
-    button.setTitle("Go to Login", for: .normal)
+    button.setTitle("Go to Registration", for: .normal)
     button.setTitleColor(.white, for: .normal)
     button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
     return button
@@ -108,8 +91,8 @@ class RegistrationView: UIView {
       padding: .init(top: 0, left: 50, bottom: 0, right: 50)
     )
     
-    addSubview(goToLoginButton)
-    goToLoginButton.anchor(
+    addSubview(goToRegistrationButton)
+    goToRegistrationButton.anchor(
       top: nil,
       leading: leadingAnchor,
       bottom: safeAreaLayoutGuide.bottomAnchor,
@@ -122,3 +105,4 @@ class RegistrationView: UIView {
   }
   
 }
+

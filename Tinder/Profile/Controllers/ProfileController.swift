@@ -104,7 +104,7 @@ class ProfileController: UITableViewController {
     tableView.tableFooterView = UIView()
     
     let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancelTapped))
-    let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleCancelTapped))
+    let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogoutTapped))
     let saveButton = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(handleSaveTapped))
     
     navigationItem.leftBarButtonItem = cancelButton
@@ -165,6 +165,15 @@ class ProfileController: UITableViewController {
   
   @objc fileprivate func handleCancelTapped() {
     dismiss(animated: true, completion: nil)
+  }
+  
+  @objc fileprivate func handleLogoutTapped() {
+    do {
+      try Auth.auth().signOut()
+      self.dismiss(animated: true, completion: nil)
+    } catch let error {
+      print("Error logging out", error.localizedDescription)
+    }
   }
   
   @objc fileprivate func handleSaveTapped() {

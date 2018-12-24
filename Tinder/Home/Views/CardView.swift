@@ -9,7 +9,13 @@
 import UIKit
 import SDWebImage
 
+protocol CardViewDelegate {
+  func moreInformationTapped()
+}
+
 class CardView: UIView {
+  
+  var delegate: CardViewDelegate?
   
   // MARK: - Views
   
@@ -40,6 +46,13 @@ class CardView: UIView {
     label.numberOfLines = 0
     label.textColor = .white
     return label
+  }()
+  
+  lazy var informationButton: UIButton = {
+    let button = UIButton(type: .system)
+    button.setImage(#imageLiteral(resourceName: "info_icon").withRenderingMode(.alwaysOriginal), for: .normal)
+    button.addTarget(self, action: #selector(handleInformationButtonTapped), for: .touchUpInside)
+    return button
   }()
   
   // MARK: - Configuration Constants
@@ -121,6 +134,16 @@ class CardView: UIView {
       trailing: backgroundImageView.trailingAnchor,
       padding: .init(top: 0, left: 20, bottom: 20, right: 20)
     )
+    
+    addSubview(informationButton)
+    informationButton.anchor(
+      top: nil,
+      leading: nil,
+      bottom: bottomAnchor,
+      trailing: trailingAnchor,
+      padding: .init(top: 0, left: 0, bottom: 16, right: 16),
+      size: .init(width: 44, height: 44)
+    )
   }
   
   fileprivate func setupImageSelectionStackView() {
@@ -139,6 +162,10 @@ class CardView: UIView {
     let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
     [panGesture, tapGesture].forEach { addGestureRecognizer($0) }
+  }
+  
+  @objc fileprivate func handleInformationButtonTapped() {
+    delegate?.moreInformationTapped()
   }
   
 }

@@ -22,11 +22,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     settings.areTimestampsInSnapshotsEnabled = true
     db.settings = settings
     
-    let registrationController = RegistrationController()
-    let homeController = HomeController()
     
+    let homeController = HomeController()
+    let navController = UINavigationController(rootViewController: homeController)
     window = UIWindow()
-    window?.rootViewController = homeController
+    window?.rootViewController = navController
     window?.makeKeyAndVisible()
     
     return true

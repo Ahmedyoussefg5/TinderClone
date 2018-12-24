@@ -29,7 +29,7 @@ class RegistrationViewModel {
   }
   
   // MARK: - Registration
-
+  
   func performRegistration(completion: @escaping (Error?) -> ()) {
     guard let email = email else { return }
     guard let password = password else { return }
@@ -71,10 +71,12 @@ class RegistrationViewModel {
   
   fileprivate func saveInfoToFirestore(imageUrl: String, completion: @escaping (Error?)->()) {
     let uid = Auth.auth().currentUser?.uid ?? ""
-    let documentData = [
+    let documentData: [String: Any] = [
       "fullName": fullName ?? "",
       "uid": uid,
-      "imageUrl1": imageUrl
+      "imageUrl1": imageUrl,
+      "minSeekingAge": 18,
+      "maxSeekingAge": 18
     ]
     
     Firestore.firestore().collection("users").document(uid).setData(documentData) { (error) in

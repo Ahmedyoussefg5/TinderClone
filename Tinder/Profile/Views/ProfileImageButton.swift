@@ -18,6 +18,7 @@ class ProfileImageButton: UIButton {
     clipsToBounds = true
     layer.cornerRadius = 8
     backgroundColor = .white
+    contentMode = .scaleAspectFill
   }
   
   required init?(coder aDecoder: NSCoder) {

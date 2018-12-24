@@ -16,6 +16,7 @@ class RegistrationController: UIViewController {
   fileprivate let registrationHUD = JGProgressHUD(style: .dark)
   
   fileprivate let registrationViewModel = RegistrationViewModel()
+  var delegate: RegisterAndLoginDelegate?
   
   // MARK: - Overrides
   
@@ -43,6 +44,7 @@ class RegistrationController: UIViewController {
   fileprivate func setupLayout() {
     view.addSubview(registrationView)
     registrationView.fillSuperview()
+    navigationController?.isNavigationBarHidden = true
   }
   
   fileprivate func setupObservers() {
@@ -70,6 +72,7 @@ class RegistrationController: UIViewController {
     fields.forEach { $0.addTarget(self, action: #selector(handleTextChange), for: .editingChanged) }
     registrationView.selectPhotoButton.addTarget(self, action: #selector(handleSelectPhotoTapped), for: .touchUpInside)
     registrationView.registerButton.addTarget(self, action: #selector(handleRegisterTapped), for: .touchUpInside)
+    registrationView.goToLoginButton.addTarget(self, action: #selector(handleGoToLoginTapped), for: .touchUpInside)
   }
   
   fileprivate func setupRegistrationViewModelObservers() {
@@ -109,7 +112,8 @@ class RegistrationController: UIViewController {
   @objc fileprivate func handleRegisterTapped() {
     handleTapGesture()
     registrationView.registerButton.isEnabled = false
-    registrationViewModel.performRegistration { (error) in
+    registrationViewModel.performRegistration { [weak self] (error) in
+      guard let self = self else { return }
       if let error = error {
         print(error)
         self.showHUDWithError(error)
@@ -118,6 +122,9 @@ class RegistrationController: UIViewController {
       }
       
       print("successfully create user and saved photo to storage")
+      self.dismiss(animated: true, completion: {
+        self.delegate?.userLoggedIn()
+      })
     }
   }
   
@@ -157,6 +164,12 @@ class RegistrationController: UIViewController {
   
   @objc fileprivate func handleTapGesture() {
     view.endEditing(true)
+  }
+  
+  @objc fileprivate func handleGoToLoginTapped() {
+    let loginController = LoginController()
+    loginController.delegate = self.delegate
+    navigationController?.pushViewController(loginController, animated: true)
   }
   
   // MARK: - Helpers

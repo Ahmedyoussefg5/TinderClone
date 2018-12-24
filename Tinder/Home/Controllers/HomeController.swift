@@ -28,6 +28,19 @@ class HomeController: UIViewController {
   var user: User?
   var lastFetchedUser: User?
   var cardViewModels: [CardViewModel] = []
+  
+  // MARK: - Overrides
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(true)
+    
+    if Auth.auth().currentUser == nil {
+      let registrationController = RegistrationController()
+      registrationController.delegate = self
+      let navController = UINavigationController(rootViewController: registrationController)
+      present(navController, animated: true, completion: nil)
+    }
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -39,6 +52,7 @@ class HomeController: UIViewController {
   
   fileprivate func setupLayout() {
     view.backgroundColor = .white
+    navigationController?.isNavigationBarHidden = true
     
     let stackView = UIStackView(arrangedSubviews: [
       topNavigationStackView, cardDeckView, bottomNavigationStackView
@@ -61,8 +75,9 @@ class HomeController: UIViewController {
   }
   
   fileprivate func retrieveCurrentUser() {
-    progessHUD.show(in: view)
+    cardDeckView.subviews.forEach { $0.removeFromSuperview() }
     guard let uid = Auth.auth().currentUser?.uid else { return }
+    progessHUD.show(in: view)
     Firestore.firestore().collection("users").document(uid).getDocument { (snapshot, error) in
       self.progessHUD.dismiss()
       
@@ -105,11 +120,12 @@ class HomeController: UIViewController {
   }
   
   fileprivate func setupCardFromUser(_ user: User) {
-    let dummyCard = CardView()
-    dummyCard.cardViewModel = user.toCardViewModel()
-    self.cardDeckView.addSubview(dummyCard)
-    self.cardDeckView.sendSubviewToBack(dummyCard)
-    dummyCard.fillSuperview()
+    let userCard = CardView()
+    userCard.delegate = self
+    userCard.cardViewModel = user.toCardViewModel()
+    self.cardDeckView.addSubview(userCard)
+    self.cardDeckView.sendSubviewToBack(userCard)
+    userCard.fillSuperview()
   }
   
   fileprivate func showHUDWithError(_ error: Error) {
@@ -135,5 +151,19 @@ class HomeController: UIViewController {
 extension HomeController: ProfileDelegate {
   func profileWasSaved() {
     retrieveCurrentUser()
+  }
+}
+
+extension HomeController: RegisterAndLoginDelegate {
+  func userLoggedIn() {
+    retrieveCurrentUser()
+  }
+}
+
+extension HomeController: CardViewDelegate {
+  func moreInformationTapped() {
+    let userDetailsController = UserDetailsController()
+    userDetailsController.view.backgroundColor = .yellow
+    present(userDetailsController, animated: true, completion: nil)
   }
 }
