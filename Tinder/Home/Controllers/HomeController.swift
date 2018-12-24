@@ -161,9 +161,9 @@ extension HomeController: RegisterAndLoginDelegate {
 }
 
 extension HomeController: CardViewDelegate {
-  func moreInformationTapped() {
+  func moreInformationTapped(cardViewModel: CardViewModel) {
     let userDetailsController = UserDetailsController()
-    userDetailsController.view.backgroundColor = .yellow
+    userDetailsController.cardViewModel = cardViewModel
     present(userDetailsController, animated: true, completion: nil)
   }
 }

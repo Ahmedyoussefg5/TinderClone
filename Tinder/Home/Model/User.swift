@@ -66,7 +66,14 @@ extension User: CardViewModelProducer {
     let professionAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .medium)]
     attributedText.append(NSAttributedString(string: professionText, attributes: professionAttributes))
     
-    let imageNames = [imageUrl1 ?? "", imageUrl2 ?? "", imageUrl3 ?? ""]
+    var imageNames: [String] = []
+    let urlStrings = [imageUrl1, imageUrl2, imageUrl3]
+    urlStrings.forEach { (urlString) in
+      if let urlString = urlString {
+        imageNames.append(urlString)
+      }
+    }
+    
     return CardViewModel(imageUrls: imageNames, attributedText: attributedText, textAlignment: .left)
   }
   

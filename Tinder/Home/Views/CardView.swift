@@ -10,7 +10,7 @@ import UIKit
 import SDWebImage
 
 protocol CardViewDelegate {
-  func moreInformationTapped()
+  func moreInformationTapped(cardViewModel: CardViewModel)
 }
 
 class CardView: UIView {
@@ -53,7 +53,7 @@ class CardView: UIView {
     button.setImage(#imageLiteral(resourceName: "info_icon").withRenderingMode(.alwaysOriginal), for: .normal)
     button.addTarget(self, action: #selector(handleInformationButtonTapped), for: .touchUpInside)
     return button
-  }()
+  }()   
   
   // MARK: - Configuration Constants
   
@@ -165,7 +165,7 @@ class CardView: UIView {
   }
   
   @objc fileprivate func handleInformationButtonTapped() {
-    delegate?.moreInformationTapped()
+    delegate?.moreInformationTapped(cardViewModel: self.cardViewModel)
   }
   
 }

@@ -18,7 +18,7 @@ class BottomNavigationStackView: UIStackView {
     return button
   }()
   
-  let dismissButton: UIButton = {
+  let nopeButton: UIButton = {
     let button = UIButton(type: .system)
     button.setImage(#imageLiteral(resourceName: "dismiss_circle").withRenderingMode(.alwaysOriginal), for: .normal)
     return button
@@ -58,7 +58,7 @@ class BottomNavigationStackView: UIStackView {
     heightAnchor.constraint(equalToConstant: 120).isActive = true
     
     let arrangedSubviews = [
-      refreshButton, dismissButton, superLikeButton, likeButton, boostButton
+      refreshButton, nopeButton, superLikeButton, likeButton, boostButton
     ]
     
     arrangedSubviews.forEach { addArrangedSubview($0) }
