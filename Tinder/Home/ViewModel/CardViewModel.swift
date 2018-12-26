@@ -13,9 +13,7 @@ protocol CardViewModelProducer {
 }
 
 class CardViewModel {
-  
-  var bindableSelectedImageIndex = Bindable<Int>()
-  
+
   let imageUrls: [String]
   let attributedText: NSAttributedString
   let textAlignment: NSTextAlignment
@@ -24,24 +22,6 @@ class CardViewModel {
     self.imageUrls = imageUrls
     self.attributedText = attributedText
     self.textAlignment = textAlignment
-    self.bindableSelectedImageIndex.value = 0
   }
   
 }
-
-// MARK: - Selected Image State
-
-extension CardViewModel {
-  
-  func goToNextPhoto() {
-    guard let oldValue = bindableSelectedImageIndex.value else { return }
-    bindableSelectedImageIndex.value = min(oldValue + 1, imageUrls.count - 1)
-  }
-  
-  func goToPreviousPhoto() {
-    guard let oldValue = bindableSelectedImageIndex.value else { return }
-    bindableSelectedImageIndex.value = max(oldValue - 1, 0)
-  }
-  
-}
-

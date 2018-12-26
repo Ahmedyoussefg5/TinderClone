@@ -24,11 +24,7 @@ class UserDetailsController: UIViewController {
     return scrollView
   }()
   
-  let swipingPhotoController = SwipingPhotoController(
-    transitionStyle: .scroll,
-    navigationOrientation: .horizontal,
-    options: nil
-  )
+  let swipingPhotoController = SwipingPhotoController(isCardViewMode: false)
   
   let dismissButton: UIButton = {
     let button = UIButton(type: .system)

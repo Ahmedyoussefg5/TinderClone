@@ -19,12 +19,14 @@ class CardView: UIView {
   
   // MARK: - Views
   
-  private let backgroundImageView: UIImageView = {
-    let imageView = UIImageView()
-    imageView.contentMode = .scaleAspectFill
-    imageView.clipsToBounds = true
-    return imageView
-  }()
+//  private let backgroundImageView: UIImageView = {
+//    let imageView = UIImageView()
+//    imageView.contentMode = .scaleAspectFill
+//    imageView.clipsToBounds = true
+//    return imageView
+//  }()
+  
+  let swipingPhotoController = SwipingPhotoController(isCardViewMode: true)
   
   private let gradientLayer: CAGradientLayer = {
     let gradientLayer = CAGradientLayer()
@@ -33,13 +35,6 @@ class CardView: UIView {
     return gradientLayer
   }()
   
-  private let imageSelectionStackView: UIStackView = {
-    let stackView = UIStackView()
-    stackView.axis = .horizontal
-    stackView.spacing = 8
-    stackView.distribution = .fillEqually
-    return stackView
-  }()
   
   private let informationLabel: UILabel = {
     let label = UILabel()
@@ -66,32 +61,7 @@ class CardView: UIView {
     didSet {
       informationLabel.attributedText = cardViewModel.attributedText
       informationLabel.textAlignment = cardViewModel.textAlignment
-      
-      // setup indicator views
-      for url in cardViewModel.imageUrls where url != "" {
-        let view = UIView()
-        view.backgroundColor = unselectedImageColor
-        imageSelectionStackView.addArrangedSubview(view)
-      }
-      imageSelectionStackView.arrangedSubviews.first?.backgroundColor = .white
-      
-      
-      let firstImageUrl = cardViewModel.imageUrls.first ?? ""
-      if let url = URL(string: firstImageUrl) {
-        backgroundImageView.sd_setImage(with: url, completed: nil)
-      }
-      
-      cardViewModel.bindableSelectedImageIndex.bind { [weak self] (index) in
-        guard let self = self else { return }
-        guard let index = index else { return }
-        let imageUrlString = self.cardViewModel.imageUrls[index]
-        if let url = URL(string: imageUrlString) {
-          self.backgroundImageView.sd_setImage(with: url, completed: nil)
-        }
-        
-        self.imageSelectionStackView.arrangedSubviews.forEach { $0.backgroundColor = self.unselectedImageColor }
-        self.imageSelectionStackView.arrangedSubviews[index].backgroundColor = .white
-      }
+      swipingPhotoController.imageUrls = cardViewModel.imageUrls
     }
   }
   
@@ -119,19 +89,18 @@ class CardView: UIView {
     layer.cornerRadius = 10
     clipsToBounds = true
     
-    addSubview(backgroundImageView)
-    backgroundImageView.fillSuperview()
-    
-    setupImageSelectionStackView()
+    let swipingView = swipingPhotoController.view!
+    addSubview(swipingView)
+    swipingView.fillSuperview()
     
     layer.addSublayer(gradientLayer)
     
     addSubview(informationLabel)
     informationLabel.anchor(
       top: nil,
-      leading: backgroundImageView.leadingAnchor,
-      bottom: backgroundImageView.bottomAnchor,
-      trailing: backgroundImageView.trailingAnchor,
+      leading: swipingView.leadingAnchor,
+      bottom: swipingView.bottomAnchor,
+      trailing: swipingView.trailingAnchor,
       padding: .init(top: 0, left: 20, bottom: 20, right: 20)
     )
     
@@ -146,22 +115,9 @@ class CardView: UIView {
     )
   }
   
-  fileprivate func setupImageSelectionStackView() {
-    addSubview(imageSelectionStackView)
-    imageSelectionStackView.anchor(
-      top: topAnchor,
-      leading: leadingAnchor,
-      bottom: nil,
-      trailing: trailingAnchor,
-      padding: .init(top: 8, left: 8, bottom: 0, right: 8),
-      size: .init(width: 0, height: 4)
-    )
-  }
-  
   fileprivate func setupGestures() {
     let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
-    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-    [panGesture, tapGesture].forEach { addGestureRecognizer($0) }
+    [panGesture].forEach { addGestureRecognizer($0) }
   }
   
   @objc fileprivate func handleInformationButtonTapped() {
@@ -171,17 +127,8 @@ class CardView: UIView {
 }
 
 // MARK: - Gestures
+
 extension CardView {
-  
-  @objc fileprivate func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-    let tapLocation = gesture.location(in: nil)
-    let shouldAdvanceToNextPhoto = tapLocation.x > (frame.width / 2) ? true : false
-    if shouldAdvanceToNextPhoto {
-      cardViewModel.goToNextPhoto()
-    } else {
-      cardViewModel.goToPreviousPhoto()
-    }
-  }
   
   @objc fileprivate func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
     switch gesture.state {

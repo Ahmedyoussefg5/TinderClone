@@ -19,19 +19,43 @@ class SwipingPhotoController: UIPageViewController {
         return photoController
       })
       
-      setViewControllers([controllers.first!], direction: .forward, animated: false, completion: nil)
+      setViewControllers([controllers.first!], direction: .forward, animated: false)
       setupBarViews()
     }
   }
   
   let barsStackView = UIStackView(arrangedSubviews: [])
   var controllers: [UIViewController] = []
+  var isCardViewMode: Bool
+  
+  init(isCardViewMode: Bool = false) {
+    self.isCardViewMode = isCardViewMode
+    super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
     dataSource = self
     delegate = self
+    
+    view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
+    
+    if isCardViewMode {
+      disableSwipingCapabilites()
+    }
+  }
+  
+  fileprivate func disableSwipingCapabilites() {
+    view.subviews.forEach { (v) in
+      if let v = v as? UIScrollView {
+        v.isScrollEnabled = false
+      }
+    }
   }
   
   fileprivate func setupBarViews() {
@@ -47,7 +71,11 @@ class SwipingPhotoController: UIPageViewController {
     barsStackView.distribution = .fillEqually
     
     view.addSubview(barsStackView)
-    let paddingTop = UIApplication.shared.statusBarFrame.height + 8
+    var paddingTop: CGFloat = 8
+    if !isCardViewMode {
+      paddingTop += UIApplication.shared.statusBarFrame.height
+    }
+    
     barsStackView.anchor(
       top: view.topAnchor,
       leading: view.leadingAnchor,
@@ -56,6 +84,25 @@ class SwipingPhotoController: UIPageViewController {
       padding: .init(top: paddingTop, left: 8, bottom: 0, right: 8),
       size: .init(width: 0, height: 4)
     )
+  }
+  
+  @objc fileprivate func handleTap(gesture: UITapGestureRecognizer) {
+    let currentController = viewControllers!.first!
+    if let index = viewControllers?.firstIndex(of: currentController) {
+      barsStackView.arrangedSubviews.forEach { $0.backgroundColor = UIColor(white: 0, alpha: 0.1) }
+      
+      if gesture.location(in: self.view).x > view.frame.width / 2 {
+        let nextIndex = min(index + 1, controllers.count - 1)
+        let nextController = controllers[nextIndex]
+        setViewControllers([nextController], direction: .forward, animated: false)
+        barsStackView.arrangedSubviews[nextIndex].backgroundColor = .white
+      } else {
+        let previousIndex = max(index - 1, 0)
+        let previousController = controllers[previousIndex]
+        setViewControllers([previousController], direction: .forward, animated: false)
+        barsStackView.arrangedSubviews[previousIndex].backgroundColor = .white
+      }
+    }
   }
   
 }
