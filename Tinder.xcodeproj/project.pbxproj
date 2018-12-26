@@ -201,6 +201,10 @@
 		7DBF4B5021CACB6D00648190 /* Tinder */ = {
 			isa = PBXGroup;
 			children = (
+				7DBF4B5821CACB6E00648190 /* Assets.xcassets */,
+				7DBF4B5A21CACB6E00648190 /* LaunchScreen.storyboard */,
+				7DBF4B5D21CACB6E00648190 /* Info.plist */,
+				7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */,
 				7DBF4B5121CACB6D00648190 /* AppDelegate.swift */,
 				7DBF4B6521CAD37C00648190 /* Extensions */,
 				7D3FECD621CC167E00996F97 /* Registration */,
@@ -208,10 +212,6 @@
 				7D6FA10421CD680F00C3C2D2 /* Profile */,
 				7DBF4B6621CAD48200648190 /* Home */,
 				7D6A036B21D0668B00B672CA /* UserDetails */,
-				7DBF4B5821CACB6E00648190 /* Assets.xcassets */,
-				7DBF4B5A21CACB6E00648190 /* LaunchScreen.storyboard */,
-				7DBF4B5D21CACB6E00648190 /* Info.plist */,
-				7D3FECE221CC46D200996F97 /* GoogleService-Info.plist */,
 			);
 			path = Tinder;
 			sourceTree = "<group>";

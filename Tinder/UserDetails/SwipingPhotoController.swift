@@ -88,7 +88,7 @@ class SwipingPhotoController: UIPageViewController {
   
   @objc fileprivate func handleTap(gesture: UITapGestureRecognizer) {
     let currentController = viewControllers!.first!
-    if let index = viewControllers?.firstIndex(of: currentController) {
+    if let index = controllers.firstIndex(of: currentController) {
       barsStackView.arrangedSubviews.forEach { $0.backgroundColor = UIColor(white: 0, alpha: 0.1) }
       
       if gesture.location(in: self.view).x > view.frame.width / 2 {

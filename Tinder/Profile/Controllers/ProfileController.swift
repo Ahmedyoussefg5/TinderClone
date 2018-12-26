@@ -345,15 +345,22 @@ extension ProfileController: UIImagePickerControllerDelegate & UINavigationContr
   fileprivate func saveImageToFirebaseStorage(_ image: UIImage, completion: @escaping (String?)->()) {
     let filename = UUID().uuidString
     let data = image.jpegData(compressionQuality: 0.75) ?? Data()
+    
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Downloading Image"
+    hud.show(in: self.view)
+    
     let ref = Storage.storage().reference(withPath: "/images/\(filename)")
     ref.putData(data, metadata: nil, completion: { (_, error) in
       if let error = error {
+        hud.dismiss()
         print(error)
         return
       }
       
       print("Successfully uploaded image to firebase storage")
       ref.downloadURL(completion: { (url, error) in
+        hud.dismiss()
         if let error = error {
           print(error)
           return
