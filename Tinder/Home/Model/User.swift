@@ -74,7 +74,7 @@ extension User: CardViewModelProducer {
       }
     }
     
-    return CardViewModel(imageUrls: imageNames, attributedText: attributedText, textAlignment: .left)
+    return CardViewModel(uid: self.uid ?? "", imageUrls: imageNames, attributedText: attributedText, textAlignment: .left)
   }
   
 }

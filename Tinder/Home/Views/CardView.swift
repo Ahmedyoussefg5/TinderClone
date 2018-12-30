@@ -11,20 +11,16 @@ import SDWebImage
 
 protocol CardViewDelegate {
   func moreInformationTapped(cardViewModel: CardViewModel)
+  func didSwipeRight(cardView: CardView)
+  func didSwipeLeft(cardView: CardView)
 }
 
 class CardView: UIView {
   
   var delegate: CardViewDelegate?
+  var nextCardView: CardView?
   
   // MARK: - Views
-  
-//  private let backgroundImageView: UIImageView = {
-//    let imageView = UIImageView()
-//    imageView.contentMode = .scaleAspectFill
-//    imageView.clipsToBounds = true
-//    return imageView
-//  }()
   
   let swipingPhotoController = SwipingPhotoController(isCardViewMode: true)
   
@@ -34,7 +30,6 @@ class CardView: UIView {
     gradientLayer.locations = [0.5, 1.1]
     return gradientLayer
   }()
-  
   
   private let informationLabel: UILabel = {
     let label = UILabel()
@@ -153,24 +148,24 @@ extension CardView {
   }
   
   fileprivate func handlePanGestureEnded(_ gesture: UIPanGestureRecognizer) {
-    let translation = gesture.translation(in: nil)
-    let shouldDismissCard = translation.x > panGestureThreshold || translation.x < -panGestureThreshold
+    let shouldDismissCard = abs(gesture.translation(in: nil).x) > panGestureThreshold
+    let translationDirection: CGFloat = gesture.translation(in: nil).x > 0 ? 1: -1
     
-    UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .curveEaseOut, animations: {
-      if shouldDismissCard {
-        if translation.x > 0 {
-          self.frame = CGRect(x: 1000, y: 0, width: self.frame.width, height: self.frame.height)
-        } else {
-          self.frame = CGRect(x: -1000, y: 0, width: self.frame.width, height: self.frame.height)
-        }
-      } else {
-        self.transform = .identity
-      }
-    }) { (_) in
-      self.transform = .identity
-      if shouldDismissCard {
+    if shouldDismissCard {
+      UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .curveEaseOut, animations: {
+        self.frame = CGRect(x: 1000 * translationDirection, y: 0, width: self.frame.width, height: self.frame.height)
+      }) { (_) in
         self.removeFromSuperview()
+        if translationDirection == 1 {
+          self.delegate?.didSwipeRight(cardView: self)
+        } else {
+          self.delegate?.didSwipeLeft(cardView: self)
+        }
       }
+    } else {
+      UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .curveEaseOut, animations: {
+        self.transform = .identity
+      })
     }
   }
   
