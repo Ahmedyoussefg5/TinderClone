@@ -92,6 +92,7 @@ class RegistrationController: UIViewController {
     
     registrationViewModel.bindableImage.bind { [weak self] (image) in
       guard let self = self else { return }
+      self.registrationView.selectPhotoButton.setTitle("", for: .normal)
       self.registrationView.selectPhotoButton.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
     }
     

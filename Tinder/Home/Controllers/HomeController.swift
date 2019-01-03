@@ -29,6 +29,7 @@ class HomeController: UIViewController {
   var user: User?
   var lastFetchedUser: User?
   var cardViewModels: [CardViewModel] = []
+  var swipes: [String: Int] = [:]
   
   // MARK: - Overrides
   
@@ -97,13 +98,30 @@ class HomeController: UIViewController {
       
       guard let dictionary = snapshot?.data() else { return }
       self.user = User(dictionary: dictionary)
-      self.retrieveUsers()
+      self.retrieveUserSwipes()
     }
   }
 
   // MARK: - Helpers
   
-  fileprivate func retrieveUsers() {
+  fileprivate func retrieveUserSwipes() {
+    guard let uid = Auth.auth().currentUser?.uid else { return }
+    
+    Firestore.firestore().collection("matches").document(uid).getDocument { (snapshot, error) in
+      if let error = error {
+        print("There was an error retrieving swipe information", error)
+        return
+      }
+      
+      if let data = snapshot?.data() as? [String: Int] {
+        self.swipes = data
+      }
+      
+      self.retrieveUsersFromFirestore()
+    }
+  }
+  
+  fileprivate func retrieveUsersFromFirestore() {
     guard let minSeekingAge = user?.minSeekingAge, let maxSeekingAge = user?.maxSeekingAge else { return }
     let query = Firestore.firestore().collection("users").whereField("age", isLessThan: maxSeekingAge)
                                                          .whereField("age", isGreaterThan: minSeekingAge)
@@ -123,7 +141,10 @@ class HomeController: UIViewController {
         let dictionary = $0.data()
         let user = User(dictionary: dictionary)
         
-        if user.uid != Auth.auth().currentUser?.uid {
+        let isNotCurrentUser = user.uid != Auth.auth().currentUser?.uid
+        let isNotSwipedByCurrentUser = self.swipes[user.uid!] == nil
+        
+        if isNotCurrentUser && isNotSwipedByCurrentUser {
           let cardView = self.setupCardFromUser(user)
           
           previousCardView?.nextCardView = cardView
@@ -171,17 +192,13 @@ class HomeController: UIViewController {
   }
   
   @objc fileprivate func handleRefreshTapped() {
-    retrieveUsers()
+    retrieveUserSwipes()
   }
   
   @objc fileprivate func handleNopeTapped() {
     print("nope tapped")
     saveMatchInfo(didLike: 0)
     performSwipeAnimation(translation: -700, angle: -15)
-  }
-  
-  @objc fileprivate func handleSuperLikeTapped() {
-    
   }
   
   @objc fileprivate func handleLikeTapped() {
@@ -219,9 +236,14 @@ class HomeController: UIViewController {
     guard let uid = Auth.auth().currentUser?.uid else { return }
     guard let matchUid = topCardView?.cardViewModel.uid else { return }
     
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Saving match information"
+    hud.show(in: view)
+    
     Firestore.firestore().collection("matches").document(uid).getDocument { (snapshot, error) in
       if let error = error {
         print("Error fetching match data", error)
+        hud.dismiss()
         return
       }
       
@@ -230,29 +252,49 @@ class HomeController: UIViewController {
         Firestore.firestore().collection("matches").document(uid).updateData(data) { (error) in
           if let error = error {
             print("Error seting match data:", error)
+            hud.dismiss()
             return
           }
           
-          
           print("match saved")
+          self.checkForMatch(matchUid: matchUid)
         }
       } else {
         Firestore.firestore().collection("matches").document(uid).setData(data) { (error) in
           if let error = error {
             print("Error seting match data:", error)
+            hud.dismiss()
             return
           }
           
-          
           print("match saved")
+          self.checkForMatch(matchUid: matchUid)
         }
+      }
+      
+      hud.dismiss()
+    }
+  }
+  
+  fileprivate func checkForMatch(matchUid: String) {
+    Firestore.firestore().collection("matches").document(matchUid).getDocument { (snapshot, error) in
+      if let error = error {
+        print("Erroring fetching match information", error)
+        return
+      }
+      
+      guard let data = snapshot?.data() else { return }
+      guard let currentUid = Auth.auth().currentUser?.uid else { return }
+      
+      let hasMathced = data[currentUid] as? Int == 1
+      if hasMathced {
+        print("Match found!")
       }
     }
   }
   
-  @objc fileprivate func handleBoostTapped() {
-    
-  }
+  @objc fileprivate func handleSuperLikeTapped() {}
+  @objc fileprivate func handleBoostTapped() {}
   
 }
 

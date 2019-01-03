@@ -24,5 +24,4 @@ class CardViewModel {
     self.attributedText = attributedText
     self.textAlignment = textAlignment
   }
-  
 }
