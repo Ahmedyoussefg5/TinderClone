@@ -123,8 +123,8 @@ class HomeController: UIViewController {
   
   fileprivate func retrieveUsersFromFirestore() {
     guard let minSeekingAge = user?.minSeekingAge, let maxSeekingAge = user?.maxSeekingAge else { return }
-    let query = Firestore.firestore().collection("users").whereField("age", isLessThan: maxSeekingAge)
-                                                         .whereField("age", isGreaterThan: minSeekingAge)
+    let query = Firestore.firestore().collection("users").whereField("age", isLessThanOrEqualTo: maxSeekingAge)
+                                                         .whereField("age", isGreaterThanOrEqualTo: minSeekingAge)
     topCardView = nil
     progessHUD.show(in: view)
     query.getDocuments { (snapshot, error) in
@@ -192,6 +192,7 @@ class HomeController: UIViewController {
   }
   
   @objc fileprivate func handleRefreshTapped() {
+    cardDeckView.subviews.forEach { $0.removeFromSuperview() }
     retrieveUserSwipes()
   }
   
@@ -246,7 +247,7 @@ class HomeController: UIViewController {
         hud.dismiss()
         return
       }
-      
+    
       let data = [matchUid: didLike]
       if snapshot?.exists == true {
         Firestore.firestore().collection("matches").document(uid).updateData(data) { (error) in
@@ -256,8 +257,9 @@ class HomeController: UIViewController {
             return
           }
           
-          print("match saved")
-          self.checkForMatch(matchUid: matchUid)
+          if didLike == 1 {
+            self.checkForMatch(matchUid: matchUid)
+          }
         }
       } else {
         Firestore.firestore().collection("matches").document(uid).setData(data) { (error) in
@@ -267,8 +269,9 @@ class HomeController: UIViewController {
             return
           }
           
-          print("match saved")
-          self.checkForMatch(matchUid: matchUid)
+          if didLike == 1 {
+            self.checkForMatch(matchUid: matchUid)
+          }
         }
       }
       
@@ -286,14 +289,28 @@ class HomeController: UIViewController {
       guard let data = snapshot?.data() else { return }
       guard let currentUid = Auth.auth().currentUser?.uid else { return }
       
-      let hasMathced = data[currentUid] as? Int == 1
-      if hasMathced {
+      let hasMatched = data[currentUid] as? Int == 1
+      if hasMatched {
         print("Match found!")
+        self.presentMatchView(matchUid: matchUid)
       }
     }
   }
   
-  @objc fileprivate func handleSuperLikeTapped() {}
+  fileprivate func presentMatchView(matchUid: String) {
+    let matchView = MatchView()
+    matchView.cardUid = matchUid
+    matchView.currentUser = user
+    view.addSubview(matchView)
+    matchView.fillSuperview()
+  }
+  
+  @objc fileprivate func handleSuperLikeTapped() {
+    let matchView = MatchView()
+    view.addSubview(matchView)
+    matchView.fillSuperview()
+  }
+  
   @objc fileprivate func handleBoostTapped() {}
   
 }
@@ -312,15 +329,15 @@ extension HomeController: RegisterAndLoginDelegate {
 
 extension HomeController: CardViewDelegate {
   func didSwipeRight(cardView: CardView) {
+    saveMatchInfo(didLike: 1)
     topCardView?.removeFromSuperview()
     topCardView = topCardView?.nextCardView
-    saveMatchInfo(didLike: 1)
   }
   
   func didSwipeLeft(cardView: CardView) {
+    saveMatchInfo(didLike: 0)
     topCardView?.removeFromSuperview()
     topCardView = topCardView?.nextCardView
-    saveMatchInfo(didLike: 0)
   }
   
   func moreInformationTapped(cardViewModel: CardViewModel) {

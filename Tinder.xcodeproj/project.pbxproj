@@ -36,6 +36,9 @@
 		7DDC53F721CB26700061FD94 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDC53F621CB26700061FD94 /* User.swift */; };
 		7DDC53FA21CB2A0D0061FD94 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDC53F921CB2A0D0061FD94 /* CardViewModel.swift */; };
 		7DDC53FC21CB343F0061FD94 /* Advertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDC53FB21CB343F0061FD94 /* Advertiser.swift */; };
+		7DE1C8F521DE8E8E00CF7D55 /* MatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE1C8F421DE8E8E00CF7D55 /* MatchView.swift */; };
+		7DE1C8F721DEC5F300CF7D55 /* SendMessageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE1C8F621DEC5F300CF7D55 /* SendMessageButton.swift */; };
+		7DE1C8F921DFC04000CF7D55 /* KeepSwipingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE1C8F821DFC04000CF7D55 /* KeepSwipingButton.swift */; };
 		CF79951F4514BEE6B6FC637C /* Pods_Tinder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E099113FCDED8F50ED8E66BD /* Pods_Tinder.framework */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +75,9 @@
 		7DDC53F621CB26700061FD94 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		7DDC53F921CB2A0D0061FD94 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		7DDC53FB21CB343F0061FD94 /* Advertiser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advertiser.swift; sourceTree = "<group>"; };
+		7DE1C8F421DE8E8E00CF7D55 /* MatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchView.swift; sourceTree = "<group>"; };
+		7DE1C8F621DEC5F300CF7D55 /* SendMessageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMessageButton.swift; sourceTree = "<group>"; };
+		7DE1C8F821DFC04000CF7D55 /* KeepSwipingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepSwipingButton.swift; sourceTree = "<group>"; };
 		CAAD1C7EE6DA20BA057D1073 /* Pods-Tinder.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tinder.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tinder/Pods-Tinder.debug.xcconfig"; sourceTree = "<group>"; };
 		E099113FCDED8F50ED8E66BD /* Pods_Tinder.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tinder.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -239,9 +245,12 @@
 		7DBF4B6721CAD49800648190 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				7DBF4B6C21CAE2EE00648190 /* CardView.swift */,
 				7DBF4B6821CAD4B600648190 /* TopNavigationStackView.swift */,
+				7DBF4B6C21CAE2EE00648190 /* CardView.swift */,
 				7DBF4B6A21CAD98500648190 /* BottomNavigationStackView.swift */,
+				7DE1C8F421DE8E8E00CF7D55 /* MatchView.swift */,
+				7DE1C8F621DEC5F300CF7D55 /* SendMessageButton.swift */,
+				7DE1C8F821DFC04000CF7D55 /* KeepSwipingButton.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -429,6 +438,7 @@
 				7DBF4B5221CACB6D00648190 /* AppDelegate.swift in Sources */,
 				7D46ABBA21D17787004E6A83 /* UserDetailsViewModel.swift in Sources */,
 				7DBF4B6921CAD4B600648190 /* TopNavigationStackView.swift in Sources */,
+				7DE1C8F521DE8E8E00CF7D55 /* MatchView.swift in Sources */,
 				7D46ABBE21D18A4F004E6A83 /* SwipingPhotoController.swift in Sources */,
 				7DDC53FA21CB2A0D0061FD94 /* CardViewModel.swift in Sources */,
 				7D6FA10321CC76F900C3C2D2 /* Bindable.swift in Sources */,
@@ -439,7 +449,9 @@
 				7D3FECE121CC31C400996F97 /* RegistrationViewModel.swift in Sources */,
 				7D6A036421D0166C00B672CA /* AgeRangeCell.swift in Sources */,
 				7DBF4B6421CAD37800648190 /* Extensions+UIView.swift in Sources */,
+				7DE1C8F921DFC04000CF7D55 /* KeepSwipingButton.swift in Sources */,
 				7D6FA10E21CD7B1B00C3C2D2 /* ProfileCell.swift in Sources */,
+				7DE1C8F721DEC5F300CF7D55 /* SendMessageButton.swift in Sources */,
 				7D3FECD821CC168E00996F97 /* RegistrationController.swift in Sources */,
 				7DDC53F721CB26700061FD94 /* User.swift in Sources */,
 			);
