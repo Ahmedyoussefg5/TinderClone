@@ -20,6 +20,14 @@ class LoginController: UIViewController {
   var loginViewModel = LoginViewModel()
   var delegate: RegisterAndLoginDelegate?
   
+  let loginHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Attempting to login"
+    return hud
+  }()
+  
+  // MARK: - Overrides
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     setupLayout()
@@ -27,6 +35,8 @@ class LoginController: UIViewController {
     setupSubviewTargets()
     setupLoginViewModelBindables()
   }
+  
+  // MARK: - Setup
   
   fileprivate func setupLayout() {
     view.addSubview(loginView)
@@ -59,7 +69,20 @@ class LoginController: UIViewController {
         self.loginView.loginButton.setTitleColor(.darkGray, for: .normal)
       }
     }
+    
+    loginViewModel.bindableIsLoggingIn.bind { [weak self] (isLoggingIn) in
+      guard let self = self else { return }
+      guard let isLoggingIn = isLoggingIn else { return }
+      
+      if isLoggingIn {
+        self.loginHUD.show(in: self.view)
+      } else {
+        self.loginHUD.dismiss()
+      }
+    }
   }
+  
+  // MARK: - Selectors
   
   @objc fileprivate func handleTextChange(textField: UITextField) {
     if textField == loginView.emailTextField {
@@ -72,19 +95,15 @@ class LoginController: UIViewController {
   @objc fileprivate func handleLoginTapped() {
     handleTapGesture()
     loginView.loginButton.isEnabled = false
-    let loginHUD = JGProgressHUD(style: .dark)
-    loginHUD.textLabel.text = "Attempting to login"
-    loginHUD.show(in: view)
     
     loginViewModel.performLogin { [weak self] (error) in
-      loginHUD.dismiss()
       guard let self = self else { return }
       
       if let error = error {
         print(error)
         self.showHUDWithError(error)
         self.loginView.loginButton.isEnabled = true
-        self.loginViewModel.bindableIsLoggingIn.value = false
+        return
       }
       
       self.dismiss(animated: true, completion: {
@@ -100,6 +119,8 @@ class LoginController: UIViewController {
   @objc fileprivate func handleGoToRegistrationTapped() {
     navigationController?.popViewController(animated: true)
   }
+  
+  // MARK: - Helpers
   
   fileprivate func showHUDWithError(_ error: Error) {
     let hud = JGProgressHUD(style: .dark)

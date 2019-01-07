@@ -14,8 +14,8 @@ class LoginViewModel {
   var bindableIsFormValid = Bindable<Bool>()
   var bindableIsLoggingIn = Bindable<Bool>()
   
-  var email: String? { didSet { checkFormIsValid() } }
-  var password: String? { didSet { checkFormIsValid() } }
+  var email: String? { didSet { checkFormIsValid() }}
+  var password: String? { didSet { checkFormIsValid() }}
   
   fileprivate func checkFormIsValid() {
     let isFormValid = email?.isEmpty == false && password?.isEmpty == false
@@ -28,6 +28,8 @@ class LoginViewModel {
     bindableIsLoggingIn.value = true
     
     Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+      self.bindableIsLoggingIn.value = false
+      
       if let error = error {
         completion(error)
         return
