@@ -31,6 +31,7 @@ class ProfileViewModel {
   var bindableIsRetrievingUser = Bindable<Bool>()
   var bindableIsSavingUserInfo = Bindable<Bool>()
   var bindableIsSavingImage = Bindable<Bool>()
+  var bindableIsLoggingOut = Bindable<Bool>()
   
   var bindableImageUrl1 = Bindable<String>()
   var bindableImageUrl2 = Bindable<String>()
@@ -120,9 +121,12 @@ class ProfileViewModel {
   
   func performLogOut(completion: @escaping (Error?) -> ()) {
     do {
+      bindableIsLoggingOut.value = true
       try Auth.auth().signOut()
+      bindableIsLoggingOut.value = false
       completion(nil)
     } catch let error {
+      bindableIsLoggingOut.value = false
       completion(error)
     }
   }

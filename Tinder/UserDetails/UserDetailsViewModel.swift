@@ -25,11 +25,6 @@ class UserDetailsViewModel {
 }
 
 extension UserDetailsViewModel {
-  
-}
-
-
-extension UserDetailsViewModel {
   func retrieveUserImage(completion: @escaping ()->()) {
     completion()
   }

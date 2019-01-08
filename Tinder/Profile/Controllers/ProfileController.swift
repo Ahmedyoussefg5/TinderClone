@@ -80,6 +80,12 @@ class ProfileController: UITableViewController {
     return hud
   }()
   
+  let loggingOutHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Logging out"
+    return hud
+  }()
+  
   // MARK: - Inner classes
   
   class ProfileImagePicker: UIImagePickerController {
@@ -143,6 +149,15 @@ class ProfileController: UITableViewController {
         self.downloadingImageHUD.show(in: self.view)
       } else {
         self.downloadingImageHUD.dismiss()
+      }
+    }
+    
+    profileViewModel.bindableIsLoggingOut.bind { [unowned self] (isLoggingOut) in
+      guard let isLoggingOut = isLoggingOut else { return }
+      if isLoggingOut {
+        self.loggingOutHUD.show(in: self.view)
+      } else {
+        self.loggingOutHUD.dismiss()
       }
     }
     
@@ -213,8 +228,7 @@ class ProfileController: UITableViewController {
   @objc fileprivate func handleLogoutTapped() {
     profileViewModel.performLogOut { [unowned self] (error) in
       if let error = error {
-        // TODO: Show error HUD
-        print(error)
+        self.showHUDWithError(error)
         return
       }
       
@@ -228,8 +242,7 @@ class ProfileController: UITableViewController {
     
     profileViewModel.saveUserInformation(data: documentData) { [unowned self] (error) in
       if let error = error {
-        // TODO: Show error HUD
-        print(error)
+        self.showHUDWithError(error)
         return
       }
       
