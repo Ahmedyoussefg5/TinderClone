@@ -59,8 +59,8 @@ class LoginController: UIViewController {
     loginViewModel.bindableIsFormValid.bind { [weak self] (isFormValid) in
       guard let self = self else { return }
       guard let isFormValid = isFormValid else { return }
-      
       self.loginView.loginButton.isEnabled = isFormValid
+      
       if isFormValid {
         self.loginView.loginButton.backgroundColor = #colorLiteral(red: 0.8273344636, green: 0.09256268293, blue: 0.324395299, alpha: 1)
         self.loginView.loginButton.setTitleColor(.white, for: .normal)

@@ -13,7 +13,12 @@ class RegistrationController: UIViewController {
     
   fileprivate let registrationView = RegistrationView()
   fileprivate let imagePickerController = UIImagePickerController()
-  fileprivate let registrationHUD = JGProgressHUD(style: .dark)
+  
+  fileprivate let registrationHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Registering"
+    return hud
+  }()
   
   fileprivate let registrationViewModel = RegistrationViewModel()
   var delegate: RegisterAndLoginDelegate?
@@ -100,7 +105,6 @@ class RegistrationController: UIViewController {
       guard let self = self else { return }
       guard let isRegistering = isRegistering else { return }
       if isRegistering {
-        self.registrationHUD.textLabel.text = "Registering"
         self.registrationHUD.show(in: self.view)
       } else {
         self.registrationHUD.dismiss()
@@ -113,13 +117,14 @@ class RegistrationController: UIViewController {
   @objc fileprivate func handleRegisterTapped() {
     handleTapGesture()
     registrationView.registerButton.isEnabled = false
+    
     registrationViewModel.performRegistration { [weak self] (error) in
       guard let self = self else { return }
       if let error = error {
         print(error)
         self.showHUDWithError(error)
         self.registrationView.registerButton.isEnabled = true
-        self.registrationViewModel.bindableIsRegistering.value = false
+        return
       }
       
       print("successfully create user and saved photo to storage")
@@ -158,8 +163,14 @@ class RegistrationController: UIViewController {
   }
   
   @objc fileprivate func handleKeyboardHide(notification: Notification) {
-    UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-      self.view.transform = .identity
+    UIView.animate(
+      withDuration: 0.5,
+      delay: 0,
+      usingSpringWithDamping: 1,
+      initialSpringVelocity: 1,
+      options: .curveEaseOut,
+      animations: {
+        self.view.transform = .identity
     })
   }
   

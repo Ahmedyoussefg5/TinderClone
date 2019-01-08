@@ -36,6 +36,8 @@ class RegistrationViewModel {
     bindableIsRegistering.value = true
     
     Auth.auth().createUser(withEmail: email, password: password) { (response, error) in
+      self.bindableIsRegistering.value = false
+      
       if let error = error {
         completion(error)
         return

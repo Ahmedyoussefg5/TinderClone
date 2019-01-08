@@ -7,9 +7,6 @@
 //
 
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
-import FirebaseStorage
 import JGProgressHUD
 import SDWebImage
 
@@ -18,22 +15,17 @@ protocol ProfileDelegate {
 }
 
 class ProfileController: UITableViewController {
-  
+  var user: User?
   var delegate: ProfileDelegate?
+  var profileViewModel = ProfileViewModel()
+  
+  // MARK: - Configuation constants
+  
+  fileprivate let sectionTitles = ["Header", "Name", "Profession", "Age", "Bio", "Seeking Age Range"]
+  fileprivate let profileBackgroundColor = UIColor(white: 0.95, alpha: 1)
+  fileprivate let profileTitleText = "Settings"
   
   // MARK: - Views
-  
-  let progessHUD: JGProgressHUD = {
-    let hud = JGProgressHUD(style: .dark)
-    hud.textLabel.text = "Fetching user info"
-    return hud
-  }()
-  
-  let updatingProfileHUD: JGProgressHUD = {
-    let hud = JGProgressHUD(style: .dark)
-    hud.textLabel.text = "Updating profile"
-    return hud
-  }()
 
   let image1Button = ProfileImageButton(type: .system)
   let image2Button = ProfileImageButton(type: .system)
@@ -70,18 +62,28 @@ class ProfileController: UITableViewController {
     return header
   }()
   
-  let sectionTitles = ["Header", "Name", "Profession", "Age", "Bio", "Seeking Age Range"]
+  let retrievingUserHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Retrieving user info"
+    return hud
+  }()
   
-  var user: User?
+  let updatingProfileHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Updating profile"
+    return hud
+  }()
   
-  // MARK: - Configuation constants
-  
-  fileprivate let profileBackgroundColor = UIColor(white: 0.95, alpha: 1)
-  fileprivate let profileTitleText = "Settings"
+  let downloadingImageHUD: JGProgressHUD = {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Downloading Image"
+    return hud
+  }()
   
   // MARK: - Inner classes
   
   class ProfileImagePicker: UIImagePickerController {
+    var selectedButtonType: ImageUrls!
     var selectedButton: UIButton?
   }
   
@@ -90,6 +92,7 @@ class ProfileController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupLayout()
+    setupViewModelObservers()
     retrieveCurrentUser()
   }
   
@@ -115,48 +118,88 @@ class ProfileController: UITableViewController {
     }
   }
   
+  fileprivate func setupViewModelObservers() {
+    profileViewModel.bindableIsRetrievingUser.bind { [unowned self] (isRetrievingUser) in
+      guard let isRetrievingUser = isRetrievingUser else { return }
+      if isRetrievingUser {
+        self.retrievingUserHUD.show(in: self.view)
+      } else {
+        self.retrievingUserHUD.dismiss()
+      }
+    }
+    
+    profileViewModel.bindableIsSavingUserInfo.bind { [unowned self] (isSavingUser) in
+      guard let isSavingUser = isSavingUser else { return }
+      if isSavingUser {
+        self.updatingProfileHUD.show(in: self.view)
+      } else {
+        self.updatingProfileHUD.dismiss()
+      }
+    }
+    
+    profileViewModel.bindableIsSavingImage.bind { [unowned self] (isSavingImage) in
+      guard let isSavingImage = isSavingImage else { return }
+      if isSavingImage {
+        self.downloadingImageHUD.show(in: self.view)
+      } else {
+        self.downloadingImageHUD.dismiss()
+      }
+    }
+    
+    profileViewModel.bindableImageUrl1.bind { [unowned self] (urlString) in
+      guard let urlString = urlString else { return }
+      guard let url = URL(string: urlString) else { return }
+      self.profileViewModel.bindableIsSavingImage.value = true
+      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil, completed: {
+        (image, _, _, _, _, _) in
+        self.profileViewModel.bindableIsSavingImage.value = false
+        self.image1Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+      })
+    }
+    
+    profileViewModel.bindableImageUrl2.bind { [unowned self] (urlString) in
+      guard let urlString = urlString else { return }
+      guard let url = URL(string: urlString) else { return }
+      self.profileViewModel.bindableIsSavingImage.value = true
+      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil, completed: {
+        (image, _, _, _, _, _) in
+        self.profileViewModel.bindableIsSavingImage.value = false
+        self.image2Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+      })
+    }
+    
+    profileViewModel.bindableImageUrl3.bind { [unowned self] (urlString) in
+      guard let urlString = urlString else { return }
+      guard let url = URL(string: urlString) else { return }
+      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil, completed: {
+        (image, _, _, _, _, _) in
+        self.profileViewModel.bindableIsSavingImage.value = false
+        self.image3Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+      })
+    }
+  }
+  
   // MARK: - Helpers
   
   fileprivate func retrieveCurrentUser() {
-    progessHUD.show(in: view)
-    
     guard user == nil else {
-      loadUserPhotos()
+      profileViewModel.bindableImageUrl1.value = user?.imageUrl1
+      profileViewModel.bindableImageUrl2.value = user?.imageUrl2
+      profileViewModel.bindableImageUrl3.value = user?.imageUrl3
       tableView.reloadData()
       return
     }
     
-    guard let uid = Auth.auth().currentUser?.uid else { return }
-    Firestore.firestore().collection("users").document(uid).getDocument { (snapshot, error) in
+    profileViewModel.retrieveCurrentUser { (user, error) in
       if let error = error {
         print(error)
         return
       }
       
-      guard let dictionary = snapshot?.data() else { return }
-      self.user = User(dictionary: dictionary)
-      self.loadUserPhotos()
+      guard let user = user else { return }
+      self.user = user
       self.tableView.reloadData()
     }
-  }
-  
-  fileprivate func loadUserPhotos() {
-    if let imageUrl1 = user?.imageUrl1, let url = URL(string: imageUrl1) {
-      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
-        self.image1Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
-      }
-    }
-    if let imageUrl2 = user?.imageUrl2, let url = URL(string: imageUrl2) {
-      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
-        self.image2Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
-      }
-    }
-    if let imageUrl3 = user?.imageUrl3, let url = URL(string: imageUrl3) {
-      SDWebImageManager.shared().loadImage(with: url, options: .continueInBackground, progress: nil) { (image, _, _, _, _, _) in
-        self.image3Button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
-      }
-    }
-    self.progessHUD.dismiss()
   }
   
   // MARK: - Selectors
@@ -168,28 +211,28 @@ class ProfileController: UITableViewController {
   }
   
   @objc fileprivate func handleLogoutTapped() {
-    do {
-      try Auth.auth().signOut()
-      self.dismiss(animated: true, completion: nil)
-    } catch let error {
-      print("Error logging out", error.localizedDescription)
-    }
-  }
-  
-  @objc fileprivate func handleSaveTapped() {
-    guard let uid = Auth.auth().currentUser?.uid else { return }
-    guard let documentData = user?.toDictionary() else { return }
-    view.endEditing(true)
-    updatingProfileHUD.show(in: view)
-    Firestore.firestore().collection("users").document(uid).setData(documentData) { (error) in
-      self.updatingProfileHUD.dismiss()
-      
+    profileViewModel.performLogOut { [unowned self] (error) in
       if let error = error {
+        // TODO: Show error HUD
         print(error)
         return
       }
       
-      print("successfully updated user settings")
+      self.dismiss(animated: true, completion: nil)
+    }
+  }
+  
+  @objc fileprivate func handleSaveTapped() {
+    guard let documentData = user?.toDictionary() else { return }
+    view.endEditing(true)
+    
+    profileViewModel.saveUserInformation(data: documentData) { [unowned self] (error) in
+      if let error = error {
+        // TODO: Show error HUD
+        print(error)
+        return
+      }
+      
       self.dismiss(animated: true, completion: {
         self.delegate?.profileWasSaved()
       })
@@ -200,6 +243,15 @@ class ProfileController: UITableViewController {
   
   @objc fileprivate func handleImageButtonTapped(button: UIButton) {
     let profileImagePicker = ProfileImagePicker()
+    
+    if button == image1Button {
+      profileImagePicker.selectedButtonType = .imageUrl1
+    } else if button == image2Button {
+      profileImagePicker.selectedButtonType = .imageUrl2
+    } else {
+      profileImagePicker.selectedButtonType = .imageUrl3
+    }
+    
     profileImagePicker.selectedButton = button
     profileImagePicker.delegate = self
     present(profileImagePicker, animated: true, completion: nil)
@@ -230,6 +282,16 @@ class ProfileController: UITableViewController {
 
     ageRangeCell.maxAgeLabel.text = "Max: \(value)"
     user?.maxSeekingAge = value
+  }
+  
+  // MARK: - Helpers
+  
+  fileprivate func showHUDWithError(_ error: Error) {
+    let hud = JGProgressHUD(style: .dark)
+    hud.textLabel.text = "Failed Registration"
+    hud.detailTextLabel.text = error.localizedDescription
+    hud.show(in: view)
+    hud.dismiss(afterDelay: 2.5)
   }
   
 }
@@ -326,50 +388,30 @@ extension ProfileController: UIImagePickerControllerDelegate & UINavigationContr
   
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     guard let image = (info[.originalImage] as? UIImage)?.withRenderingMode(.alwaysOriginal) else { return }
-    (picker as? ProfileImagePicker)?.selectedButton?.setImage(image, for: .normal)
-    saveImageToFirebaseStorage(image) { [weak self] (downloadUrl) in
-      guard let self = self else { return }
-      guard let button = (picker as? ProfileImagePicker)?.selectedButton else { return }
-      if button == self.image1Button {
-        self.user?.imageUrl1 = downloadUrl
-      } else if button == self.image2Button {
-        self.user?.imageUrl2 = downloadUrl
-      } else {
-        self.user?.imageUrl3 = downloadUrl
-      }
-    }
+    guard let picker = picker as? ProfileImagePicker else { return }
     
-    dismiss(animated: true, completion: nil)
-  }
-  
-  fileprivate func saveImageToFirebaseStorage(_ image: UIImage, completion: @escaping (String?)->()) {
-    let filename = UUID().uuidString
-    let data = image.jpegData(compressionQuality: 0.75) ?? Data()
+    picker.selectedButton?.setImage(image, for: .normal)
+    let imageUrlType = picker.selectedButtonType!
     
-    let hud = JGProgressHUD(style: .dark)
-    hud.textLabel.text = "Downloading Image"
-    hud.show(in: self.view)
-    
-    let ref = Storage.storage().reference(withPath: "/images/\(filename)")
-    ref.putData(data, metadata: nil, completion: { (_, error) in
+    profileViewModel.saveImageToStorage(imageUrlType: imageUrlType, image: image) { (downloadUrl, error) in
       if let error = error {
-        hud.dismiss()
-        print(error)
+        self.showHUDWithError(error)
         return
       }
       
-      print("Successfully uploaded image to firebase storage")
-      ref.downloadURL(completion: { (url, error) in
-        hud.dismiss()
-        if let error = error {
-          print(error)
-          return
-        }
-        
-        print("Successfully downloaded image url:", url?.absoluteString ?? "")
-        completion(url?.absoluteString)
-      })
-    })
+      guard let downloadUrl = downloadUrl else { return }
+
+      switch imageUrlType {
+      case .imageUrl1:
+        self.user?.imageUrl1 = downloadUrl
+      case .imageUrl2:
+        self.user?.imageUrl2 = downloadUrl
+      case .imageUrl3:
+        self.user?.imageUrl3 = downloadUrl
+      }
+    }
+
+    dismiss(animated: true, completion: nil)
   }
   
   func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
