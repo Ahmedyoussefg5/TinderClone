@@ -226,7 +226,7 @@ class ProfileController: UITableViewController {
   }
   
   @objc fileprivate func handleLogoutTapped() {
-    profileViewModel.performLogOut { [unowned self] (error) in
+    profileViewModel.performLogOut { (error) in
       if let error = error {
         self.showHUDWithError(error)
         return
@@ -240,7 +240,7 @@ class ProfileController: UITableViewController {
     guard let documentData = user?.toDictionary() else { return }
     view.endEditing(true)
     
-    profileViewModel.saveUserInformation(data: documentData) { [unowned self] (error) in
+    profileViewModel.saveUserInformation(data: documentData) { (error) in
       if let error = error {
         self.showHUDWithError(error)
         return
