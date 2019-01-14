@@ -11,16 +11,16 @@ import JGProgressHUD
 
 class RegistrationController: UIViewController {
     
-  fileprivate let registrationView = RegistrationView()
-  fileprivate let imagePickerController = UIImagePickerController()
+  private let registrationView = RegistrationView()
+  private let imagePickerController = UIImagePickerController()
   
-  fileprivate let registrationHUD: JGProgressHUD = {
+  private let registrationHUD: JGProgressHUD = {
     let hud = JGProgressHUD(style: .dark)
     hud.textLabel.text = "Registering"
     return hud
   }()
   
-  fileprivate let registrationViewModel = RegistrationViewModel()
+  private let registrationViewModel = RegistrationViewModel()
   var delegate: RegisterAndLoginDelegate?
   
   // MARK: - Overrides
@@ -35,12 +35,12 @@ class RegistrationController: UIViewController {
   }
   
   override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(true)
+    super.viewWillAppear(animated)
     setupObservers()
   }
   
   override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(true)
+    super.viewWillDisappear(animated)
     NotificationCenter.default.removeObserver(self)
   }
   

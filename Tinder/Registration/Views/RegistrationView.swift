@@ -91,13 +91,13 @@ class RegistrationView: UIView {
   
   // MARK: - Setup
   
-  fileprivate func setupGradientLayer() {
+  private func setupGradientLayer() {
     gradientLayer.colors = [#colorLiteral(red: 0.8971258998, green: 0.1223937199, blue: 0.4557680488, alpha: 1).cgColor, #colorLiteral(red: 0.9893690944, green: 0.3603764176, blue: 0.3745168447, alpha: 1).cgColor]
     gradientLayer.locations = [0, 1]
     layer.addSublayer(gradientLayer)
   }
   
-  fileprivate func setupSubviews() {
+  private func setupSubviews() {
     addSubview(stackView)
     stackView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
     stackView.anchor(

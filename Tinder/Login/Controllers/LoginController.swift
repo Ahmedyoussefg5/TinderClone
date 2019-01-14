@@ -10,7 +10,7 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
-protocol RegisterAndLoginDelegate {
+protocol RegisterAndLoginDelegate: class {
   func userLoggedIn()
 }
 
