@@ -8,7 +8,8 @@
 
 import UIKit
 
-class RegistrationTextField: UITextField {
+final class RegistrationTextField: UITextField {
+  
   private let padding: CGFloat
   private let height: CGFloat
   
@@ -35,4 +36,5 @@ class RegistrationTextField: UITextField {
   required init?(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+  
 }

@@ -8,9 +8,20 @@
 
 import UIKit
 
-class RegistrationView: UIView {
+final class RegistrationView: UIView {
   
-  let gradientLayer = CAGradientLayer()
+  private let gradientLayer = CAGradientLayer()
+  
+  // MARK: - Stackview subviews
+  
+  lazy var stackView: UIStackView = {
+    let sv = UIStackView(arrangedSubviews:
+      [selectPhotoButton, fullNameTextfield, emailTextfield, passwordTextfield, registerButton]
+    )
+    sv.spacing = 8
+    sv.axis = .vertical
+    return sv
+  }()
   
   let selectPhotoButton: UIButton = {
     let button = UIButton(type: .system)
@@ -58,14 +69,7 @@ class RegistrationView: UIView {
     return button
   }()
   
-  lazy var stackView: UIStackView = {
-    let sv = UIStackView(arrangedSubviews:
-      [selectPhotoButton, fullNameTextfield, emailTextfield, passwordTextfield,registerButton]
-    )
-    sv.spacing = 8
-    sv.axis = .vertical
-    return sv
-  }()
+  // MARK: - Login
   
   let goToLoginButton: UIButton = {
     let button = UIButton(type: .system)

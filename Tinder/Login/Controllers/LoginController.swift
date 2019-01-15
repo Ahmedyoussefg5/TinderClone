@@ -7,20 +7,19 @@
 //
 
 import UIKit
-import FirebaseAuth
 import JGProgressHUD
 
 protocol RegisterAndLoginDelegate: class {
   func userLoggedIn()
 }
 
-class LoginController: UIViewController {
+final class LoginController: UIViewController {
   
-  var loginView = LoginView()
-  var loginViewModel = LoginViewModel()
+  private var loginView = LoginView()
+  private var loginViewModel = LoginViewModel()
   var delegate: RegisterAndLoginDelegate?
   
-  let loginHUD: JGProgressHUD = {
+  private let loginHUD: JGProgressHUD = {
     let hud = JGProgressHUD(style: .dark)
     hud.textLabel.text = "Attempting to login"
     return hud
@@ -38,26 +37,25 @@ class LoginController: UIViewController {
   
   // MARK: - Setup
   
-  fileprivate func setupLayout() {
+  private func setupLayout() {
     view.addSubview(loginView)
     loginView.fillSuperview()
     navigationController?.isNavigationBarHidden = true
   }
   
-  fileprivate func setupGestures() {
+  private func setupGestures() {
     view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
   }
   
-  fileprivate func setupSubviewTargets() {
+  private func setupSubviewTargets() {
     let fields = [loginView.emailTextField, loginView.passwordTextField]
     fields.forEach { $0.addTarget(self, action: #selector(handleTextChange), for: .editingChanged) }
     loginView.loginButton.addTarget(self, action: #selector(handleLoginTapped), for: .touchUpInside)
     loginView.goToRegistrationButton.addTarget(self, action: #selector(handleGoToRegistrationTapped), for: .touchUpInside)
   }
   
-  fileprivate func setupLoginViewModelBindables() {
-    loginViewModel.bindableIsFormValid.bind { [weak self] (isFormValid) in
-      guard let self = self else { return }
+  private func setupLoginViewModelBindables() {
+    loginViewModel.bindableIsFormValid.bind { [unowned self] (isFormValid) in
       guard let isFormValid = isFormValid else { return }
       self.loginView.loginButton.isEnabled = isFormValid
       
@@ -70,8 +68,7 @@ class LoginController: UIViewController {
       }
     }
     
-    loginViewModel.bindableIsLoggingIn.bind { [weak self] (isLoggingIn) in
-      guard let self = self else { return }
+    loginViewModel.bindableIsLoggingIn.bind { [unowned self] (isLoggingIn) in
       guard let isLoggingIn = isLoggingIn else { return }
       
       if isLoggingIn {
@@ -84,7 +81,7 @@ class LoginController: UIViewController {
   
   // MARK: - Selectors
   
-  @objc fileprivate func handleTextChange(textField: UITextField) {
+  @objc private func handleTextChange(textField: UITextField) {
     if textField == loginView.emailTextField {
       loginViewModel.email = textField.text
     } else {
@@ -92,42 +89,36 @@ class LoginController: UIViewController {
     }
   }
   
-  @objc fileprivate func handleLoginTapped() {
-    handleTapGesture()
+  @objc private func handleLoginTapped() {
+    view.endEditing(true)
     loginView.loginButton.isEnabled = false
     
-    loginViewModel.performLogin { [weak self] (error) in
-      guard let self = self else { return }
-      
+    loginViewModel.performLogin { [unowned self] (error) in
       if let error = error {
         print(error)
-        self.showHUDWithError(error)
+        
+        let hud = JGProgressHUD.errorHUD(with: "Failed Registration", error: error)
+        hud.show(in: self.view)
+        hud.dismiss(afterDelay: 2.5)
+        
         self.loginView.loginButton.isEnabled = true
         return
       }
       
+      print("successfully logged in")
       self.dismiss(animated: true, completion: {
         self.delegate?.userLoggedIn()
       })
     }
   }
   
-  @objc fileprivate func handleTapGesture() {
+  @objc private func handleTapGesture() {
     view.endEditing(true)
   }
   
-  @objc fileprivate func handleGoToRegistrationTapped() {
+  @objc private func handleGoToRegistrationTapped() {
     navigationController?.popViewController(animated: true)
   }
   
-  // MARK: - Helpers
-  
-  fileprivate func showHUDWithError(_ error: Error) {
-    let hud = JGProgressHUD(style: .dark)
-    hud.textLabel.text = "Failed Registration"
-    hud.detailTextLabel.text = error.localizedDescription
-    hud.show(in: view)
-    hud.dismiss(afterDelay: 2.5)
-  }
-  
 }
+

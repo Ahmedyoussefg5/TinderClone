@@ -9,18 +9,18 @@
 import UIKit
 import JGProgressHUD
 
-class RegistrationController: UIViewController {
+final class RegistrationController: UIViewController {
     
   private let registrationView = RegistrationView()
-  private let imagePickerController = UIImagePickerController()
+  private let registrationViewModel = RegistrationViewModel()
   
+  private let imagePickerController = UIImagePickerController()
   private let registrationHUD: JGProgressHUD = {
     let hud = JGProgressHUD(style: .dark)
     hud.textLabel.text = "Registering"
     return hud
   }()
   
-  private let registrationViewModel = RegistrationViewModel()
   var delegate: RegisterAndLoginDelegate?
   
   // MARK: - Overrides
@@ -46,13 +46,13 @@ class RegistrationController: UIViewController {
   
   // MARK: - Setup
   
-  fileprivate func setupLayout() {
+  private func setupLayout() {
     view.addSubview(registrationView)
     registrationView.fillSuperview()
     navigationController?.isNavigationBarHidden = true
   }
   
-  fileprivate func setupObservers() {
+  private func setupObservers() {
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(handleKeyboardShow),
@@ -68,11 +68,11 @@ class RegistrationController: UIViewController {
     )
   }
   
-  fileprivate func setupGestures() {
+  private func setupGestures() {
     view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
   }
   
-  fileprivate func setupSubviewTargets() {
+  private func setupSubviewTargets() {
     let fields = [registrationView.fullNameTextfield, registrationView.emailTextfield, registrationView.passwordTextfield]
     fields.forEach { $0.addTarget(self, action: #selector(handleTextChange), for: .editingChanged) }
     registrationView.selectPhotoButton.addTarget(self, action: #selector(handleSelectPhotoTapped), for: .touchUpInside)
@@ -80,12 +80,11 @@ class RegistrationController: UIViewController {
     registrationView.goToLoginButton.addTarget(self, action: #selector(handleGoToLoginTapped), for: .touchUpInside)
   }
   
-  fileprivate func setupRegistrationViewModelObservers() {
-    registrationViewModel.bindableIsFormValid.bind { [weak self] (isFormValid) in
-      guard let self = self else { return }
+  private func setupRegistrationViewModelObservers() {
+    registrationViewModel.bindableIsFormValid.bind { [unowned self] (isFormValid) in
       guard let isFormValid = isFormValid else { return }
-      
       self.registrationView.registerButton.isEnabled = isFormValid
+      
       if isFormValid {
         self.registrationView.registerButton.backgroundColor = #colorLiteral(red: 0.8273344636, green: 0.09256268293, blue: 0.324395299, alpha: 1)
         self.registrationView.registerButton.setTitleColor(.white, for: .normal)
@@ -95,15 +94,9 @@ class RegistrationController: UIViewController {
       }
     }
     
-    registrationViewModel.bindableImage.bind { [weak self] (image) in
-      guard let self = self else { return }
-      self.registrationView.selectPhotoButton.setTitle("", for: .normal)
-      self.registrationView.selectPhotoButton.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
-    }
-    
-    registrationViewModel.bindableIsRegistering.bind { [weak self] (isRegistering) in
-      guard let self = self else { return }
+    registrationViewModel.bindableIsRegistering.bind { [unowned self] (isRegistering) in
       guard let isRegistering = isRegistering else { return }
+      
       if isRegistering {
         self.registrationHUD.show(in: self.view)
       } else {
@@ -114,15 +107,18 @@ class RegistrationController: UIViewController {
   
   // MARK: - Registration
   
-  @objc fileprivate func handleRegisterTapped() {
+  @objc private func handleRegisterTapped() {
     handleTapGesture()
     registrationView.registerButton.isEnabled = false
     
-    registrationViewModel.performRegistration { [weak self] (error) in
-      guard let self = self else { return }
+    registrationViewModel.performRegistration { [unowned self] (error) in
       if let error = error {
         print(error)
-        self.showHUDWithError(error)
+        
+        let hud = JGProgressHUD.errorHUD(with: "Failed to register", error: error)
+        hud.show(in: self.view)
+        hud.dismiss(afterDelay: 2.5)
+        
         self.registrationView.registerButton.isEnabled = true
         return
       }
@@ -134,7 +130,7 @@ class RegistrationController: UIViewController {
     }
   }
   
-  @objc fileprivate func handleSelectPhotoTapped() {
+  @objc private func handleSelectPhotoTapped() {
     imagePickerController.delegate = self
     imagePickerController.isEditing = true
     present(imagePickerController, animated: true)
@@ -142,7 +138,7 @@ class RegistrationController: UIViewController {
   
   // MARK: - Keyboard
   
-  @objc fileprivate func handleTextChange(textField: UITextField) {
+  @objc private func handleTextChange(textField: UITextField) {
     if textField == registrationView.fullNameTextfield {
       registrationViewModel.fullName = textField.text
     } else if textField == registrationView.emailTextfield {
@@ -152,7 +148,7 @@ class RegistrationController: UIViewController {
     }
   }
   
-  @objc fileprivate func handleKeyboardShow(_ notification: Notification) {
+  @objc private func handleKeyboardShow(_ notification: Notification) {
     guard let value = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
     let keyboardHeight = value.cgRectValue.height
     let stackViewY = registrationView.stackView.frame.origin.y
@@ -162,7 +158,7 @@ class RegistrationController: UIViewController {
     view.transform = CGAffineTransform(translationX: 0, y: -difference - 8)
   }
   
-  @objc fileprivate func handleKeyboardHide(notification: Notification) {
+  @objc private func handleKeyboardHide(notification: Notification) {
     UIView.animate(
       withDuration: 0.5,
       delay: 0,
@@ -174,24 +170,14 @@ class RegistrationController: UIViewController {
     })
   }
   
-  @objc fileprivate func handleTapGesture() {
+  @objc private func handleTapGesture() {
     view.endEditing(true)
   }
   
-  @objc fileprivate func handleGoToLoginTapped() {
+  @objc private func handleGoToLoginTapped() {
     let loginController = LoginController()
     loginController.delegate = self.delegate
-    navigationController?.pushViewController(loginController, animated: true)
-  }
-  
-  // MARK: - Helpers
-  
-  fileprivate func showHUDWithError(_ error: Error) {
-    let hud = JGProgressHUD(style: .dark)
-    hud.textLabel.text = "Failed Registration"
-    hud.detailTextLabel.text = error.localizedDescription
-    hud.show(in: view)
-    hud.dismiss(afterDelay: 2.5)
+    navigationController?.show(loginController, sender: self)
   }
   
 }
@@ -200,7 +186,8 @@ extension RegistrationController: UIImagePickerControllerDelegate & UINavigation
   
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     let image = info[.originalImage] as? UIImage
-    registrationViewModel.bindableImage.value = image
+    registrationView.selectPhotoButton.setImage(image, for: .normal)
+    registrationViewModel.imageData = image?.jpegData(compressionQuality: 0.75) ?? Data()
     dismiss(animated: true, completion: nil)
   }
   

@@ -8,9 +8,21 @@
 
 import UIKit
 
-class LoginView: UIView {
+final class LoginView: UIView {
   
-  let gradientLayer = CAGradientLayer()
+  private let gradientLayer = CAGradientLayer()
+  private lazy var stackView: UIStackView = {
+    let sv = UIStackView(arrangedSubviews: [
+      emailTextField,
+      passwordTextField,
+      loginButton
+      ])
+    sv.spacing = 8
+    sv.axis = .vertical
+    return sv
+  }()
+  
+  // MARK: - Stackview subviews
   
   let emailTextField: RegistrationTextField = {
     let tf = RegistrationTextField(padding: 24, height: 44)
@@ -39,16 +51,7 @@ class LoginView: UIView {
     return button
   }()
   
-  lazy var stackView: UIStackView = {
-    let sv = UIStackView(arrangedSubviews: [
-      emailTextField,
-      passwordTextField,
-      loginButton
-      ])
-    sv.spacing = 8
-    sv.axis = .vertical
-    return sv
-  }()
+  // MARK: - Registration
   
   let goToRegistrationButton: UIButton = {
     let button = UIButton(type: .system)
@@ -64,8 +67,6 @@ class LoginView: UIView {
     gradientLayer.frame = self.frame
   }
   
-  // MARK: - Initializers
-  
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupGradientLayer()
@@ -74,13 +75,13 @@ class LoginView: UIView {
   
   // MARK: - Setup
   
-  fileprivate func setupGradientLayer() {
+  private func setupGradientLayer() {
     gradientLayer.colors = [#colorLiteral(red: 0.8971258998, green: 0.1223937199, blue: 0.4557680488, alpha: 1).cgColor, #colorLiteral(red: 0.9893690944, green: 0.3603764176, blue: 0.3745168447, alpha: 1).cgColor]
     gradientLayer.locations = [0, 1]
     layer.addSublayer(gradientLayer)
   }
   
-  fileprivate func setupSubviews() {
+  private func setupSubviews() {
     addSubview(stackView)
     stackView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
     stackView.anchor(
